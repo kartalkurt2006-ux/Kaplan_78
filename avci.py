@@ -305,13 +305,14 @@ def run_scanner():
       konum_1h = 50.0
       wave_breakout_1h = False
       hma20_1h_curr = 0.0
-      dalga_verimlilik_skoru = 0.0  # Tahta formülü ($A_1 \cdot A_2 / \text{Hacim}$) için
+      dalga_verimlilik_skoru_1h = 0.0
 
       # --- 15 DAKİKALIK (MİKRO) DEĞİŞKENLER ---
       mfi_15m = 50.0
       plus_di_15m = 0.0
       rsi_15m = 50.0
       cmf_15m = 0.0
+      dalga_verimlilik_skoru_15m = 0.0
 
       try:
         def kayit_guncelle(kural_adi):
@@ -353,25 +354,18 @@ def run_scanner():
             close_curr_1h = close_1h.iloc[-1]
             guncel_fiyat = close_curr_1h
 
-            # --- TAHTA FORMÜLÜ ENTEGRASYONU ($A_1 \cdot A_2 / \text{Hacim}$) ---
-            # A1: Son dalga boyu (Son tepe - Son dip mesafesi)
-            # A2: Önceki dalga boyu / Ortalama marj genleşmesi
-            # Payda: Hacim oranı (Son hacim / 20 bar ortalama hacim)
-            high_np = high_1h.values
-            low_np = low_1h.values
-            vol_np = volume_1h.values
+            # 1s Dalga Verimlilik Skoru ((A1 * A2) / Hacim)
+            high_np_1h = high_1h.values
+            low_np_1h = low_1h.values
+            vol_np_1h = volume_1h.values
             
-            a1_marj = abs(high_np[-1] - low_np[-1])
-            a2_marj = abs(high_np[-5] - low_np[-5]) if len(high_np) >= 5 else a1_marj
+            a1_marj_1h = abs(high_np_1h[-1] - low_np_1h[-1])
+            a2_marj_1h = abs(high_np_1h[-5] - low_np_1h[-5]) if len(high_np_1h) >= 5 else a1_marj_1h
+            vol_sma_1h = np.mean(vol_np_1h[-20:]) if len(vol_np_1h) >= 20 else np.mean(vol_np_1h)
+            hacim_payda_1h = (vol_np_1h[-1] / (vol_sma_1h + 1e-10))
             
-            vol_sma_1h = np.mean(vol_np[-20:]) if len(vol_np) >= 20 else np.mean(vol_np)
-            hacim_payda = (vol_np[-1] / (vol_sma_1h + 1e-10))
-            
-            # Formül Uygulaması: (A1 * A2) / Hacim_Oranı (Hacim paydada olduğu için verimlilik skoru üretir)
-            if hacim_payda > 0:
-              dalga_verimlilik_skoru = (a1_marj * a2_marj) / hacim_payda
-            else:
-              dalga_verimlilik_skoru = 0.0
+            if hacim_payda_1h > 0:
+              dalga_verimlilik_skoru_1h = (a1_marj_1h * a2_marj_1h) / hacim_payda_1h
 
             # +DI / -DI (14) - 1s
             up_move_1h = high_1h.diff()
@@ -406,6 +400,19 @@ def run_scanner():
           if not close_15m.isna().iloc[-1] and not volume_15m.isna().iloc[-1]:
             if guncel_fiyat == 0.0:
               guncel_fiyat = close_15m.iloc[-1]
+
+            # 15m Mikro Dalga Verimlilik Skoru ((A1 * A2) / Hacim)
+            high_np_15m = high_15m.values
+            low_np_15m = low_15m.values
+            vol_np_15m = volume_15m.values
+            
+            a1_marj_15m = abs(high_np_15m[-1] - low_np_15m[-1])
+            a2_marj_15m = abs(high_np_15m[-5] - low_np_15m[-5]) if len(high_np_15m) >= 5 else a1_marj_15m
+            vol_sma_15m = np.mean(vol_np_15m[-20:]) if len(vol_np_15m) >= 20 else np.mean(vol_np_15m)
+            hacim_payda_15m = (vol_np_15m[-1] / (vol_sma_15m + 1e-10))
+            
+            if hacim_payda_15m > 0:
+              dalga_verimlilik_skoru_15m = (a1_marj_15m * a2_marj_15m) / hacim_payda_15m
 
             # RSI (14) - 15m
             delta_15m = close_15m.diff()
@@ -458,7 +465,7 @@ def run_scanner():
             span_a_ustunde_15m = close_15m.iloc[-1] > senkou_span_a.iloc[-1]
             span_a_etkilesim_15m = span_a_kirilimi_15m or span_a_ustunde_15m
 
-            # --- 1. FIRTINA 1 🛡️ STRATEJİSİ ---
+            # --- 1. FIRTINA 1 🛡️ STRATEJİSİ (Aynen Korundu) ---
             firtina_span_onay = span_a_kirilimi_15m or span_a_ustunde_15m
             firtina_bulut_sarti = firtina_span_onay or ichimoku_hibrit_onay or daralan_bulut_onay_15m
 
@@ -484,7 +491,7 @@ def run_scanner():
                 tetiklenen_str.append("FIRTINA 1")
                 toplam_puan += 40.0
 
-            # --- 2. TEHLİKELİ HİBRİT STRATEJİSİ ---
+            # --- 2. TEHLİKELİ HİBRİT STRATEJİSİ (Aynen Korundu) ---
             hma9_15m = calculate_hma(close_15m, 9)
             hma9_kesisir_span_a_15m = (hma9_15m.iloc[-2] <= senkou_span_a.iloc[-2]) and (hma9_15m.iloc[-1] > senkou_span_a.iloc[-1])
             hma9_ustunde_span_a_15m = hma9_15m.iloc[-1] > senkou_span_a.iloc[-1]
@@ -509,7 +516,7 @@ def run_scanner():
                 tetiklenen_str.append("TEHLİKELİ HİBRİT")
                 toplam_puan += 30.0
 
-            # --- 3. ÇEKİRGE 15 STRATEJİSİ ---
+            # --- 3. ÇEKİRGE 15 STRATEJİSİ (Aynen Korundu) ---
             if (
                 daralan_bulut_onay_15m
                 and (plus_di_15m > 25.0)
@@ -522,10 +529,9 @@ def run_scanner():
                 tetiklenen_str.append("🐒🐒 Çekirge 15")
                 toplam_puan += 40.0
 
-            # --- 4. DALGA & SPAN-A DARALAN BULUT STRATEJİSİ (Gerçek Tahta Formülü: (A1 * A2) / Hacim) ---
+            # --- 4. DALGA & SPAN-A DARALAN BULUT STRATEJİSİ (Aynen Korundu) ---
             dalga_makro_uygun = wave_breakout_1h or (0.0 <= konum_1h <= 60.0)
 
-            # Tahtadaki formülün entegrasyonu: Dalga marj verimlilik skoru belirli bir dinamik eşiği aşmalı
             if (
                 not df_1h.empty and len(df_1h) >= 40
                 and dalga_makro_uygun
@@ -533,11 +539,25 @@ def run_scanner():
                 and daralan_bulut_onay_15m
                 and span_a_etkilesim_15m
                 and (plus_di_15m > 22.0)
-                and (dalga_verimlilik_skoru > 0.5)
+                and (dalga_verimlilik_skoru_1h > 0.5)
             ):
               if kayit_guncelle("dalga_span_a_daralan"):
                 tetiklenen_str.append("DALGA & SPAN-A DARALAN")
                 toplam_puan += 35.0
+
+            # --- 5. YENİ: KUSURSUZ FIRTINA ⚡ (Orijinal Fırtına 1 + 15m Mikro Dalga Verimlilik Formülü) ---
+            if (
+                not df_1h.empty and len(df_1h) >= 40
+                and wave_breakout_1h
+                and (close_curr_1h > hma20_1h_curr)
+                and firtina_bulut_sarti
+                and (plus_di_15m > 20.0)
+                and firtina_mfi_onay
+                and (dalga_verimlilik_skoru_15m > 0.5)
+            ):
+              if kayit_guncelle("kusursuz_firtina"):
+                tetiklenen_str.append("KUSURSUZ FIRTINA ⚡")
+                toplam_puan += 45.0
 
         if tetiklenen_str:
           if toplam_puan == 0:
@@ -589,7 +609,9 @@ def run_scanner():
         
         for strat in item['stratejiler']:
           strat_upper = strat.upper()
-          if "FIRTINA 1" in strat_upper:
+          if "KUSURSUZ FIRTINA" in strat_upper:
+            mesaj_satirlari.append(f"• ⚡⚡ {strat} (15m Verimlilik Formülü Onaylı | MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
+          elif "FIRTINA 1" in strat_upper:
             mesaj_satirlari.append(f"• 🛡️ {strat} (15m MFI:{item['mfi_15m']:.1f} | 15m +DI:{item['plus_di_15m']:.1f} | 1s Konum:%{item['konum_1h']:.1f})")
           elif "TEHLİKELİ HİBRİT" in strat_upper:
             mesaj_satirlari.append(f"• 🟢🟢🟢 {strat} (15m MFI:{item['mfi_15m']:.1f} | 15m +DI:{item['plus_di_15m']:.1f})")
