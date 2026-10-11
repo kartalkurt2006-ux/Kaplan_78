@@ -395,8 +395,6 @@ def run_scanner():
             hma20_1h = calculate_hma(close_1h, 20)
             hma20_1h_curr = hma20_1h.iloc[-1]
 
-            # (Aşağıda 15m verileri alındıktan sonra güncellenen entegre "1 Saat Yakala" mantığı çalıştırılacaktır)
-
             # Strateji: DELİRDİ 1 Saat
             if (close_curr_1h > hma20_1h_curr) and (rvol_1h >= 2.0) and wave_breakout_1h:
               if kayit_guncelle("deli_gitan_1h"):
@@ -439,9 +437,12 @@ def run_scanner():
             up_move_15m = high_15m.diff()
             down_move_15m = -low_15m.diff()
             plus_dm_15m = up_move_15m.where((up_move_15m > down_move_15m) & (up_move_15m > 0), 0)
+            minus_dm_15m = down_move_15m.where((down_move_15m > up_move_15m) & (down_move_15m > 0), 0)
             tr_15m = pd.concat([high_15m - low_15m, (high_15m - close_15m.shift()).abs(), (low_15m - close_15m.shift()).abs()], axis=1).max(axis=1)
             
             plus_di_ser_15m = 100 * (plus_dm_15m.rolling(14).sum() / (tr_15m.rolling(14).sum() + 1e-10))
+            minus_di_ser_15m = 100 * (minus_dm_15m.rolling(14).sum() / (tr_15m.rolling(14).sum() + 1e-10))
+            
             plus_di_15m = plus_di_ser_15m.iloc[-1]
 
             konum_15m = get_wave_position(df_15m)
@@ -513,20 +514,20 @@ def run_scanner():
                 toplam_puan += 40.0
 
             # ==========================================
-            # Strateji: TEHLİKELİ HİBRİT
+            # Strateji: TEHLİKELİ HİBRİT (YENİLENen)
             # ==========================================
-            konum_1h_uygun_hibrit = (0.0 <= konum_1h <= 50.0)
-            mfi_diklesme_hibrit = (mfi_15m >= 45.0) and ((mfi_15m - mfi_ser_15m.shift(2).iloc[-1]) >= 12.0)
-            fiyat_kalkis_hibrit = close_15m.iloc[-1] > kijun_26.iloc[-1]
-            
+            hma9_15m = calculate_hma(close_15m, 9)
+            hma9_kesisir_span_a_15m = (hma9_15m.iloc[-2] <= senkou_span_a.iloc[-2]) and (hma9_15m.iloc[-1] > senkou_span_a.iloc[-1])
+            hma9_ustunde_span_a_15m = hma9_15m.iloc[-1] > senkou_span_a.iloc[-1]
+            hma9_span_a_sarti = hma9_kesisir_span_a_15m or hma9_ustunde_span_a_15m
+
+            di_kesisim_15m = (plus_di_ser_15m.iloc[-2] <= minus_di_ser_15m.iloc[-2]) and (plus_di_ser_15m.iloc[-1] > minus_di_ser_15m.iloc[-1])
+            di_15m_kosul = (plus_di_15m > 20.0) or di_kesisim_15m
+
             if (
-                konum_1h_uygun_hibrit
-                and di_sarti_1h
-                and (close_curr_1h > hma20_1h_curr)
-                and mfi_diklesme_hibrit
-                and (plus_di_15m >= 28.0)
-                and fiyat_kalkis_hibrit
-                and daralan_bulut_onay_15m
+                (plus_di_1h > 25.0)
+                and hma9_span_a_sarti
+                and di_15m_kosul
             ):
               if kayit_guncelle("dip_hibrit"):
                 tetiklenen_str.append("TEHLİKELİ HİBRİT")
@@ -638,7 +639,7 @@ def run_scanner():
           elif "TOPGUN" in strat_upper:
             mesaj_satirlari.append(f"• 🦅🐴🦅 {strat} (1s RSI:{item['rsi_1h']:.1f} | 15m MFI:{item['mfi_15m']:.1f} | 15m +DI:{item['plus_di_15m']:.1f} | 1s Konum:%{item['konum_1h']:.1f})")
           elif "TEHLİKELİ HİBRİT" in strat_upper:
-            mesaj_satirlari.append(f"• 🟢🟢🟢 {strat} (15m MFI:{item['mfi_15m']:.1f} | 15m +DI:{item['plus_di_15m']:.1f} | 1s Konum:%{item['konum_1h']:.1f})")
+            mesaj_satirlari.append(f"• 🟢🟢🟢 {strat} (15m +DI:{item['plus_di_15m']:.1f} | 1s +DI:{item['plus_di_1h']:.1f})")
           elif "ÇEKİRGE 15" in strat_upper:
             mesaj_satirlari.append(f"• 🐒🐒 {strat} (15m MFI:{item['mfi_15m']:.1f} | 15m RSI:{item['rsi_15m']:.1f} | 15m CMF:{item['cmf_15m']:.2f} | 15m +DI:{item['plus_di_15m']:.1f})")
           elif "DALGA & SPAN-A DARALAN" in strat_upper:
