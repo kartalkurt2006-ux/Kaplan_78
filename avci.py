@@ -514,7 +514,7 @@ def run_scanner():
                 toplam_puan += 40.0
 
             # ==========================================
-            # Strateji: TEHLİKELİ HİBRİT (YENİLENen)
+            # Strateji: TEHLİKELİ HİBRİT (Düzeltilmiş)
             # ==========================================
             hma9_15m = calculate_hma(close_15m, 9)
             hma9_kesisir_span_a_15m = (hma9_15m.iloc[-2] <= senkou_span_a.iloc[-2]) and (hma9_15m.iloc[-1] > senkou_span_a.iloc[-1])
