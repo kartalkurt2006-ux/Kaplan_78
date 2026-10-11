@@ -25,6 +25,6 @@ jobs:
 
       - name: Avci Scriptini Çalıştır
         env:
-          FORCE_RUN: "false"  # Normal seans kontrolü ile çalışır
+          FORCE_RUN: "true"  # Test için seans kontrolü bypass edildi
         run: |
           python avci.py
