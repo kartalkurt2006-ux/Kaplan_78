@@ -15,7 +15,7 @@ COOLDOWN_SECONDS = 3600  # Aynı hisse için 1 saat bekleme süresi
 TZ_TR = pytz.timezone("Europe/Istanbul")
 
 # Ntfy Kanal Ayarı
-NTFY_URL = "https://ntfy.sh/kaplan_senet"
+NTFY_URL = "https://ntfy.sh/kaplan_78borsa"
 
 # Merkezi Hafıza Dosyası
 MERKEZI_HAFIZA_DOSYASI = "borsa_hafiza_v2.json"
