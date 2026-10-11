@@ -463,7 +463,7 @@ def run_scanner():
                 tetiklenen_str.append("FIRTINA 1")
                 toplam_puan += 40.0
 
-            # --- 2. TEHLİKELİ HİBRİT STRATEJİSİ ---
+            # --- 2. TEHLİKELİ HİBRİT STRATEJİSİ (MFI Şartları Güncellendi) ---
             hma9_15m = calculate_hma(close_15m, 9)
             hma9_kesisir_span_a_15m = (hma9_15m.iloc[-2] <= senkou_span_a.iloc[-2]) and (hma9_15m.iloc[-1] > senkou_span_a.iloc[-1])
             hma9_ustunde_span_a_15m = hma9_15m.iloc[-1] > senkou_span_a.iloc[-1]
@@ -472,10 +472,21 @@ def run_scanner():
             di_kesisim_15m = (plus_di_ser_15m.iloc[-2] <= minus_di_ser_15m.iloc[-2]) and (plus_di_ser_15m.iloc[-1] > minus_di_ser_15m.iloc[-1])
             di_15m_kosul = (plus_di_15m > 20.0) or di_kesisim_15m
 
+            # Yeni MFI Kuralları:
+            # 1. Son 12 barda en az bir kere MFI > 70 testi yapmış olacak
+            mfi_12bar_70 = (mfi_ser_15m.iloc[-12:] > 70).any()
+            # 2. Son 3 veya 5 barda (örneğin son 4 barda) MFI genel olarak 50 üzerinde seyredecek
+            mfi_son_4bar_50 = (mfi_ser_15m.iloc[-4:] > 50).all()
+            # 3. Son barda da MFI 50 üzerinde olacak ve isterse son barda 70'i kesmiş/üstünde olabilecek
+            mfi_son_bar_kosul = mfi_ser_15m.iloc[-1] > 50
+
+            hibrit_mfi_onay = mfi_12bar_70 and mfi_son_4bar_50 and mfi_son_bar_kosul
+
             if (
                 (plus_di_1h > 25.0)
                 and hma9_span_a_sarti
                 and di_15m_kosul
+                and hibrit_mfi_onay
             ):
               if kayit_guncelle("dip_hibrit"):
                 tetiklenen_str.append("TEHLİKELİ HİBRİT")
@@ -562,7 +573,7 @@ def run_scanner():
           if "FIRTINA 1" in strat_upper:
             mesaj_satirlari.append(f"• 🛡️ {strat} (15m MFI:{item['mfi_15m']:.1f} | 15m +DI:{item['plus_di_15m']:.1f} | 1s Konum:%{item['konum_1h']:.1f})")
           elif "TEHLİKELİ HİBRİT" in strat_upper:
-            mesaj_satirlari.append(f"• 🟢🟢🟢 {strat} (15m +DI:{item['plus_di_15m']:.1f})")
+            mesaj_satirlari.append(f"• 🟢🟢🟢 {strat} (15m MFI:{item['mfi_15m']:.1f} | 15m +DI:{item['plus_di_15m']:.1f})")
           elif "ÇEKİRGE 15" in strat_upper:
             mesaj_satirlari.append(f"• 🐒🐒 {strat} (15m MFI:{item['mfi_15m']:.1f} | 15m RSI:{item['rsi_15m']:.1f} | 15m CMF:{item['cmf_15m']:.2f} | 15m +DI:{item['plus_di_15m']:.1f})")
           elif "DALGA & SPAN-A DARALAN" in strat_upper:
