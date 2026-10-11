@@ -395,12 +395,7 @@ def run_scanner():
             hma20_1h = calculate_hma(close_1h, 20)
             hma20_1h_curr = hma20_1h.iloc[-1]
 
-            # Strateji: 1 Saat Yakala
-            if (close_curr_1h > hma20_1h_curr) and (rsi_1h > 50) and (plus_di_1h > 25) and wave_breakout_1h:
-              is_1h_yakala_valid = True
-              if kayit_guncelle("1h_dalga_gorsel"):
-                tetiklenen_str.append("1 Saat Yakala")
-                toplam_puan += 25.0
+            # (Aşağıda 15m verileri alındıktan sonra güncellenen entegre "1 Saat Yakala" mantığı çalıştırılacaktır)
 
             # Strateji: DELİRDİ 1 Saat
             if (close_curr_1h > hma20_1h_curr) and (rvol_1h >= 2.0) and wave_breakout_1h:
@@ -471,11 +466,29 @@ def run_scanner():
             daralan_trend_15m = (bulut_kalinligi_15m.iloc[-1] < bulut_kalinligi_15m.iloc[-2]) and (bulut_kalinligi_15m.iloc[-2] < bulut_kalinligi_15m.iloc[-3])
             daralan_bulut_onay_15m = cok_ince_bulut_15m or daralan_trend_15m
 
-            # --- FIRTINA 1 🛡️ STRATEJİSİ ---
             span_a_kirilimi_15m = (close_15m.iloc[-2] <= senkou_span_a.iloc[-2]) and (close_15m.iloc[-1] > senkou_span_a.iloc[-1])
             span_a_ustunde_15m = close_15m.iloc[-1] > senkou_span_a.iloc[-1]
-            firtina_span_onay = span_a_kirilimi_15m or span_a_ustunde_15m
+            span_a_etkilesim_15m = span_a_kirilimi_15m or span_a_ustunde_15m
 
+            # ==========================================
+            # Strateji: 1 Saat Yakala (Daralan Bulut Entegreli)
+            # ==========================================
+            if (
+                not df_1h.empty and len(df_1h) >= 40
+                and (close_curr_1h > hma20_1h_curr)
+                and (rsi_1h > 50)
+                and (plus_di_1h > 25)
+                and wave_breakout_1h
+                and daralan_bulut_onay_15m
+                and span_a_etkilesim_15m
+            ):
+              is_1h_yakala_valid = True
+              if kayit_guncelle("1h_dalga_gorsel"):
+                tetiklenen_str.append("1 Saat Yakala")
+                toplam_puan += 30.0
+
+            # --- FIRTINA 1 🛡️ STRATEJİSİ ---
+            firtina_span_onay = span_a_kirilimi_15m or span_a_ustunde_15m
             firtina_bulut_sarti = firtina_span_onay or ichimoku_hibrit_onay or daralan_bulut_onay_15m
 
             mfi_window_12_firtina = mfi_ser_15m.iloc[-12:]
@@ -550,14 +563,13 @@ def run_scanner():
             # ==========================================
             # Strateji: DALGA & SPAN-A DARALAN BULUT
             # ==========================================
-            span_a_etkilesim = span_a_kirilimi_15m or span_a_ustunde_15m
             dalga_makro_uygun = wave_breakout_1h or (0.0 <= konum_1h <= 60.0)
 
             if (
                 dalga_makro_uygun
                 and (close_curr_1h > hma20_1h_curr)
                 and daralan_bulut_onay_15m
-                and span_a_etkilesim
+                and span_a_etkilesim_15m
                 and (plus_di_15m > 22.0)
             ):
               if kayit_guncelle("dalga_span_a_daralan"):
@@ -634,7 +646,7 @@ def run_scanner():
           elif "DELİRDİ" in strat_upper and "1 SAAT" in strat_upper:
             mesaj_satirlari.append(f"• 💥💥💥 {strat} (1s RVOL:{item['rvol_1h']:.2f} | 1s RSI:{item['rsi_1h']:.1f} | 1s Konum:%{item['konum_1h']:.1f})")
           elif "1 SAAT YAKALA" in strat_upper:
-            mesaj_satirlari.append(f"• ⚫⚫⚫ {strat} (1s RSI:{item['rsi_1h']:.1f} | 1s Konum:%{item['konum_1h']:.1f})")
+            mesaj_satirlari.append(f"• ⚫⚫⚫ {strat} (1s RSI:{item['rsi_1h']:.1f} | 15m Daralan Bulut & Span-A | 1s Konum:%{item['konum_1h']:.1f})")
           else:
             mesaj_satirlari.append(f"• 🟣 {strat}")
             
