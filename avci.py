@@ -305,6 +305,7 @@ def run_scanner():
       konum_1h = 50.0
       wave_breakout_1h = False
       hma20_1h_curr = 0.0
+      dalga_verimlilik_skoru = 0.0  # Tahta formülü ($A_1 \cdot A_2 / \text{Hacim}$) için
 
       # --- 15 DAKİKALIK (MİKRO) DEĞİŞKENLER ---
       mfi_15m = 50.0
@@ -351,6 +352,26 @@ def run_scanner():
           if not close_1h.isna().iloc[-1] and not volume_1h.isna().iloc[-1]:
             close_curr_1h = close_1h.iloc[-1]
             guncel_fiyat = close_curr_1h
+
+            # --- TAHTA FORMÜLÜ ENTEGRASYONU ($A_1 \cdot A_2 / \text{Hacim}$) ---
+            # A1: Son dalga boyu (Son tepe - Son dip mesafesi)
+            # A2: Önceki dalga boyu / Ortalama marj genleşmesi
+            # Payda: Hacim oranı (Son hacim / 20 bar ortalama hacim)
+            high_np = high_1h.values
+            low_np = low_1h.values
+            vol_np = volume_1h.values
+            
+            a1_marj = abs(high_np[-1] - low_np[-1])
+            a2_marj = abs(high_np[-5] - low_np[-5]) if len(high_np) >= 5 else a1_marj
+            
+            vol_sma_1h = np.mean(vol_np[-20:]) if len(vol_np) >= 20 else np.mean(vol_np)
+            hacim_payda = (vol_np[-1] / (vol_sma_1h + 1e-10))
+            
+            # Formül Uygulaması: (A1 * A2) / Hacim_Oranı (Hacim paydada olduğu için verimlilik skoru üretir)
+            if hacim_payda > 0:
+              dalga_verimlilik_skoru = (a1_marj * a2_marj) / hacim_payda
+            else:
+              dalga_verimlilik_skoru = 0.0
 
             # +DI / -DI (14) - 1s
             up_move_1h = high_1h.diff()
@@ -463,7 +484,7 @@ def run_scanner():
                 tetiklenen_str.append("FIRTINA 1")
                 toplam_puan += 40.0
 
-            # --- 2. TEHLİKELİ HİBRİT STRATEJİSİ (MFI Şartları Güncellendi) ---
+            # --- 2. TEHLİKELİ HİBRİT STRATEJİSİ ---
             hma9_15m = calculate_hma(close_15m, 9)
             hma9_kesisir_span_a_15m = (hma9_15m.iloc[-2] <= senkou_span_a.iloc[-2]) and (hma9_15m.iloc[-1] > senkou_span_a.iloc[-1])
             hma9_ustunde_span_a_15m = hma9_15m.iloc[-1] > senkou_span_a.iloc[-1]
@@ -472,12 +493,8 @@ def run_scanner():
             di_kesisim_15m = (plus_di_ser_15m.iloc[-2] <= minus_di_ser_15m.iloc[-2]) and (plus_di_ser_15m.iloc[-1] > minus_di_ser_15m.iloc[-1])
             di_15m_kosul = (plus_di_15m > 20.0) or di_kesisim_15m
 
-            # Yeni MFI Kuralları:
-            # 1. Son 12 barda en az bir kere MFI > 70 testi yapmış olacak
             mfi_12bar_70 = (mfi_ser_15m.iloc[-12:] > 70).any()
-            # 2. Son 3 veya 5 barda (örneğin son 4 barda) MFI genel olarak 50 üzerinde seyredecek
             mfi_son_4bar_50 = (mfi_ser_15m.iloc[-4:] > 50).all()
-            # 3. Son barda da MFI 50 üzerinde olacak ve isterse son barda 70'i kesmiş/üstünde olabilecek
             mfi_son_bar_kosul = mfi_ser_15m.iloc[-1] > 50
 
             hibrit_mfi_onay = mfi_12bar_70 and mfi_son_4bar_50 and mfi_son_bar_kosul
@@ -505,9 +522,10 @@ def run_scanner():
                 tetiklenen_str.append("🐒🐒 Çekirge 15")
                 toplam_puan += 40.0
 
-            # --- 4. DALGA & SPAN-A DARALAN BULUT STRATEJİSİ ---
+            # --- 4. DALGA & SPAN-A DARALAN BULUT STRATEJİSİ (Gerçek Tahta Formülü: (A1 * A2) / Hacim) ---
             dalga_makro_uygun = wave_breakout_1h or (0.0 <= konum_1h <= 60.0)
 
+            # Tahtadaki formülün entegrasyonu: Dalga marj verimlilik skoru belirli bir dinamik eşiği aşmalı
             if (
                 not df_1h.empty and len(df_1h) >= 40
                 and dalga_makro_uygun
@@ -515,6 +533,7 @@ def run_scanner():
                 and daralan_bulut_onay_15m
                 and span_a_etkilesim_15m
                 and (plus_di_15m > 22.0)
+                and (dalga_verimlilik_skoru > 0.5)
             ):
               if kayit_guncelle("dalga_span_a_daralan"):
                 tetiklenen_str.append("DALGA & SPAN-A DARALAN")
