@@ -2,9 +2,9 @@ name: BIST Avci Otomatik Tarama
 
 on:
   schedule:
-    # Türkiye saati ile hafta içi her gün seans saatlerinde çalışır (UTC saatine göre ayarlanmıştır)
-    - cron: '30 6,9,12,14 * * 1-5'
-  workflow_dispatch:  # İstersen GitHub panelinden manuel tetikleyebilmeni sağlar
+    # Türkiye saati ile hafta içi 09:30 - 18:00 arası her 15 dakikada bir çalışır (UTC karşılığı)
+    - cron: '*/15 6-15 * * 1-5'
+  workflow_dispatch:  # GitHub panelinden manuel tetikleme desteği
 
 jobs:
   run-scanner:
@@ -25,6 +25,14 @@ jobs:
 
       - name: Avci Scriptini Çalıştır
         env:
-          FORCE_RUN: "true"  # Test için seans kontrolü bypass edildi
+          FORCE_RUN: "false"  # Normal seans saatleri aktif (Test için "true" yapabilirsin)
         run: |
           python avci.py
+
+      - name: Hafıza Dosyasını Güncelle ve Kaydet
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add borsa_hafiza_v2.json || true
+          git commit -m "Otomatik hafıza güncellemesi: borsa_hafiza_v2.json [skip ci]" || true
+          git push || true
