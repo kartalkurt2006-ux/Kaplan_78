@@ -229,7 +229,7 @@ def download_with_retry(chunk, interval, period, max_retries=4):
         return df_all
     except Exception as e:
       print(f"  [Uyarı] İndirme hatası ({interval}, Deneme {attempt}/{max_retries}): {e}")
-      time.sleep(2 * attempt)
+    time.sleep(3 * attempt)  # Yahoo rate limit koruması
   return pd.DataFrame()
 
 
@@ -294,6 +294,7 @@ def run_scanner():
   chunk_results.sort(key=lambda x: x[0])
 
   for chunk_idx, chunk, df_1h_all, df_15m_all in chunk_results:
+    time.sleep(0.5)  # Yahoo rate limit güvenli gecikmesi
     for clean_ticker in chunk:
       temiz_isim = clean_ticker.replace(".IS", "")
       tetiklenen_str = []
@@ -465,7 +466,7 @@ def run_scanner():
             span_a_ustunde_15m = close_15m.iloc[-1] > senkou_span_a.iloc[-1]
             span_a_etkilesim_15m = span_a_kirilimi_15m or span_a_ustunde_15m
 
-            # --- 1. FIRTINA 1 🛡️ STRATEJİSİ (Aynen Korundu) ---
+            # --- 1. FIRTINA 1 🛡️ STRATEJİSİ ---
             firtina_span_onay = span_a_kirilimi_15m or span_a_ustunde_15m
             firtina_bulut_sarti = firtina_span_onay or ichimoku_hibrit_onay or daralan_bulut_onay_15m
 
@@ -491,7 +492,7 @@ def run_scanner():
                 tetiklenen_str.append("FIRTINA 1")
                 toplam_puan += 40.0
 
-            # --- 2. TEHLİKELİ HİBRİT STRATEJİSİ (Aynen Korundu) ---
+            # --- 2. TEHLİKELİ HİBRİT STRATEJİSİ ---
             hma9_15m = calculate_hma(close_15m, 9)
             hma9_kesisir_span_a_15m = (hma9_15m.iloc[-2] <= senkou_span_a.iloc[-2]) and (hma9_15m.iloc[-1] > senkou_span_a.iloc[-1])
             hma9_ustunde_span_a_15m = hma9_15m.iloc[-1] > senkou_span_a.iloc[-1]
@@ -516,7 +517,7 @@ def run_scanner():
                 tetiklenen_str.append("TEHLİKELİ HİBRİT")
                 toplam_puan += 30.0
 
-            # --- 3. ÇEKİRGE 15 STRATEJİSİ (Aynen Korundu) ---
+            # --- 3. ÇEKİRGE 15 STRATEJİSİ ---
             if (
                 daralan_bulut_onay_15m
                 and (plus_di_15m > 25.0)
@@ -529,7 +530,7 @@ def run_scanner():
                 tetiklenen_str.append("🐒🐒 Çekirge 15")
                 toplam_puan += 40.0
 
-            # --- 4. DALGA & SPAN-A DARALAN BULUT STRATEJİSİ (Aynen Korundu) ---
+            # --- 4. DALGA & SPAN-A DARALAN BULUT STRATEJİSİ ---
             dalga_makro_uygun = wave_breakout_1h or (0.0 <= konum_1h <= 60.0)
 
             if (
@@ -545,7 +546,7 @@ def run_scanner():
                 tetiklenen_str.append("DALGA & SPAN-A DARALAN")
                 toplam_puan += 35.0
 
-            # --- 5. YENİ: KUSURSUZ FIRTINA ⚡ (Orijinal Fırtına 1 + 15m Mikro Dalga Verimlilik Formülü) ---
+            # --- 5. KUSURSUZ FIRTINA ⚡ ---
             if (
                 not df_1h.empty and len(df_1h) >= 40
                 and wave_breakout_1h
@@ -565,7 +566,7 @@ def run_scanner():
 
           try:
               live_tk = yf.Ticker(clean_ticker)
-              live_price = live_tk.fast_info['lastPrice']
+              live_price = live_tk.fast_info.get('lastPrice', None)
               if live_price is not None and not math.isnan(float(live_price)) and float(live_price) > 0:
                   guncel_fiyat = float(live_price)
           except Exception:
