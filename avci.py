@@ -394,7 +394,7 @@ def run_scanner():
                 tetiklenen_str.append("1 Saat Yakala")
                 toplam_puan += 25.0
 
-            # Strateji: Kusursuz Yakala (Kesişme VEYA Üstünde/Üstünlük Mantığı ile Güncellendi)
+            # Strateji: Kusursuz Yakala (Kesişme VEYA Üstünde/Üstünlük Mantığı ile)
             genlik_1h = (high_1h.rolling(3).max() - low_1h.rolling(3).min()) / close_1h
             dalga_verimliligi_1h = genlik_1h / (rvol_1h + 1e-5)
             hacim_erken_1h = (rvol_1h >= 1.4) & (volume_1h > volume_1h.shift(1))
@@ -402,7 +402,7 @@ def run_scanner():
             
             di_kesisim_1h = (plus_di_ser_1h.iloc[-2] <= minus_di_ser_1h.iloc[-2]) and (plus_di_ser_1h.iloc[-1] > minus_di_ser_1h.iloc[-1])
             di_ustunluk_1h = (plus_di_1h > minus_di_1h) and (plus_di_1h > 20)
-            dmi_esnek_onay_1h = di_kesisim_1h or di_ustunluk_1h  # Kesişme VEYA Zaten Üstünde/Üstünlük
+            dmi_esnek_onay_1h = di_kesisim_1h or di_ustunluk_1h
 
             kusursuz_yakala_sarti = (
                 (close_curr_1h > hma20_1h_curr)
@@ -480,7 +480,6 @@ def run_scanner():
             daralan_trend_15m = (bulut_kalinligi_15m.iloc[-1] < bulut_kalinligi_15m.iloc[-2]) and (bulut_kalinligi_15m.iloc[-2] < bulut_kalinligi_15m.iloc[-3])
             daralan_bulut_onay_15m = cok_ince_bulut_15m or daralan_trend_15m
 
-            # Esnek Span A Kırılım VEYA Üstünde Olma Şartı
             span_a_kirilimi_15m = (close_15m.iloc[-2] <= senkou_span_a.iloc[-2]) and (close_15m.iloc[-1] > senkou_span_a.iloc[-1])
             span_a_ustunde_15m = close_15m.iloc[-1] > senkou_span_a.iloc[-1]
             span_a_esnek_onay_15m = span_a_kirilimi_15m or span_a_ustunde_15m
@@ -490,7 +489,7 @@ def run_scanner():
             hma9_ustunde_span_a_15m = hma9_15m.iloc[-1] > senkou_span_a.iloc[-1]
             hma9_esnek_sarti = hma9_kesisir_span_a_15m or hma9_ustunde_span_a_15m
 
-            # --- TEHLİKELİ HİBRİT MFI VE Dİ KOŞULLARI (Hacimsel Matematik Eklendi) ---
+            # --- TEHLİKELİ HİBRİT MFI VE Dİ KOŞULLARI (RVOL >= 0.6 Esnek Erken Yapı) ---
             di_kesisim_15m = (plus_di_ser_15m.iloc[-2] <= minus_di_ser_15m.iloc[-2]) and (plus_di_ser_15m.iloc[-1] > minus_di_ser_15m.iloc[-1])
             di_15m_kosul = (plus_di_15m > 20.0) or di_kesisim_15m
 
@@ -500,12 +499,9 @@ def run_scanner():
             hibrit_mfi_onay = mfi_12bar_70 and mfi_son_4bar_50 and mfi_son_bar_kosul
 
             rvol_15m_dip = (volume_15m / volume_15m.rolling(20).mean()).iloc[-1]
-            genlik_15m_dip = (high_15m.rolling(3).max() - low_15m.rolling(3).min()) / close_15m
-            dalga_verimliligi_dip = genlik_15m_dip / (rvol_15m_dip + 1e-5)
-            hacim_erken_dip = (rvol_15m_dip >= 1.4) & (volume_15m > volume_15m.shift(1))
-            verimlilik_onay_dip = dalga_verimliligi_dip.iloc[-1] > 0.35
+            hacim_erken_dip_06 = (rvol_15m_dip >= 0.6)
 
-            # --- STRATEJİ: 🦅 ÇEKİRGE (GELİŞTİRİLMİŞ HİBRİT YAPI) ---
+            # --- STRATEJİ: 🦅 ÇEKİRGE ---
             if (
                 wave_breakout_15m
                 and (dalga_verimlilik_skoru_15m > 0.5)
@@ -543,20 +539,19 @@ def run_scanner():
                 tetiklenen_str.append("FIRTINA 1")
                 toplam_puan += 40.0
 
-            # --- TEHLİKELİ HİBRİT STRATEJİSİ (Hacimsel Matematik Entegre Edildi) ---
+            # --- TEHLİKELİ HİBRİT STRATEJİSİ (RVOL >= 0.6 ile Güncellendi) ---
             if (
                 (plus_di_1h > 25.0)
                 and hma9_esnek_sarti
                 and di_15m_kosul
                 and hibrit_mfi_onay
-                and hacim_erken_dip.iloc[-1]
-                and verimlilik_onay_dip
+                and hacim_erken_dip_06
             ):
               if kayit_guncelle("dip_hibrit"):
                 tetiklenen_str.append("TEHLİKELİ HİBRİT")
-                toplam_puan += 35.0
+                toplam_puan += 30.0
 
-            # --- KUSURSUZ FIRTINA ⚡ (Kesişme VEYA Üstünde Mantığı ile Güncellendi) ---
+            # --- KUSURSUZ FIRTINA ⚡ ---
             rvol_15m = (volume_15m / volume_15m.rolling(20).mean()).iloc[-1]
             genlik_15m = (high_15m.rolling(3).max() - low_15m.rolling(3).min()) / close_15m
             dalga_verimliligi_15m_yeni = genlik_15m / (rvol_15m + 1e-5)
