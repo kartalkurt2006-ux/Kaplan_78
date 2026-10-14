@@ -18,7 +18,7 @@ TZ_TR = pytz.timezone("Europe/Istanbul")
 NTFY_URL = "https://ntfy.sh/kaplan_78borsa"
 
 # Tek Merkezi Hafıza Dosyası
-MERKEZI_HAFIZA_DOSYASI = "borsa_hafiza.json"
+MERKEZI_HAFIZA_DOSYASI = "borsa_hafiza.json2"
 
 # BIST Tüm Hisseler
 STOCKS = [
