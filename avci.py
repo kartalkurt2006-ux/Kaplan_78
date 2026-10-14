@@ -159,6 +159,68 @@ def check_wave_margins(df, lookback=3, threshold_multiplier=0.80):
     return False, 50.0
 
 
+# ==========================================
+# YENİ EKLENEN KARTAL MİMARİSİ TARAMA FONKSİYONLARI
+# ==========================================
+def scan_kartal_15dk(df):
+    """KARTAL 15dk: Esnek RVOL (>=0.6) ve %80 eşik kırılımı"""
+    triggered, _ = check_wave_margins(df, lookback=3, threshold_multiplier=0.80)
+    if not triggered or 'Volume' not in df.columns:
+        return False
+    rvol = df['Volume'] / df['Volume'].rolling(window=20).mean()
+    return triggered and (rvol.iloc[-1] >= 0.6)
+
+def scan_kartal_1s(df):
+    """KARTAL 1 S: Saatlik %80 eşik kırılımı + 0.35 Dalga Verimliliği Onayı"""
+    triggered, _ = check_wave_margins(df, lookback=3, threshold_multiplier=0.80)
+    if not triggered or 'Volume' not in df.columns or 'High' not in df.columns or 'Low' not in df.columns:
+        return False
+    
+    wave_sequence = [4, 8, 5, 8, 9]
+    total_cycle = sum(wave_sequence)
+    high = df['High'].values
+    low = df['Low'].values
+    volume = df['Volume'].values
+    
+    if len(high) < total_cycle:
+        return False
+        
+    recent_high = np.max(high[-total_cycle:])
+    recent_low = np.min(low[-total_cycle:])
+    margin_range = recent_high - recent_low
+    
+    rvol = volume / pd.Series(volume).rolling(window=20).mean().values
+    rvol_curr = rvol[-1] if not np.isnan(rvol[-1]) and rvol[-1] > 0 else 1e-5
+    
+    wave_efficiency = margin_range / rvol_curr
+    return triggered and (wave_efficiency > 0.35)
+
+def scan_kartal_ozel(df_15m, df_1s):
+    """KARTAL ÖZEL: 15dk Erken Tetik + 1s Saatlik 0.35 Dalga Verimliliği Onayı (Master Hibrit)"""
+    tetik_15m = scan_kartal_15dk(df_15m)
+    if not tetik_15m or df_1s.empty:
+        return False
+        
+    wave_sequence = [4, 8, 5, 8, 9]
+    total_cycle = sum(wave_sequence)
+    high_1s = df_1s['High'].values
+    low_1s = df_1s['Low'].values
+    volume_1s = df_1s['Volume'].values
+    
+    if len(high_1s) < total_cycle:
+        return False
+        
+    recent_high_1s = np.max(high_1s[-total_cycle:])
+    recent_low_1s = np.min(low_1s[-total_cycle:])
+    margin_range_1s = recent_high_1s - recent_low_1s
+    
+    rvol_1s = volume_1s / pd.Series(volume_1s).rolling(window=20).mean().values
+    rvol_curr_1s = rvol_1s[-1] if not np.isnan(rvol_1s[-1]) and rvol_1s[-1] > 0 else 1e-5
+    
+    efficiency_1s = margin_range_1s / rvol_curr_1s
+    return tetik_15m and (efficiency_1s > 0.35)
+
+
 def hafiza_yukle():
   hafiza = {"kayitlar": {}}
   if os.path.exists(MERKEZI_HAFIZA_DOSYASI):
@@ -573,6 +635,24 @@ def run_scanner():
                 tetiklenen_str.append("KUSURSUZ FIRTINA ⚡")
                 toplam_puan += 45.0
 
+            # ==========================================
+            # YENİ KARTAL MİMARİSİ TARAMA ENTEGRASYONU
+            # ==========================================
+            if scan_kartal_15dk(df_15m):
+              if kayit_guncelle("kartal_15dk"):
+                tetiklenen_str.append("KARTAL 15dk")
+                toplam_puan += 30.0
+
+            if not df_1h.empty and scan_kartal_1s(df_1h):
+              if kayit_guncelle("kartal_1s"):
+                tetiklenen_str.append("KARTAL 1 S")
+                toplam_puan += 35.0
+
+            if not df_1h.empty and scan_kartal_ozel(df_15m, df_1h):
+              if kayit_guncelle("kartal_ozel"):
+                tetiklenen_str.append("KARTAL ÖZEL")
+                toplam_puan += 45.0
+
         if tetiklenen_str:
           if toplam_puan == 0:
             toplam_puan = 25.0
@@ -638,7 +718,13 @@ def run_scanner():
         
         for strat in item['stratejiler']:
           strat_upper = strat.upper()
-          if "KUSURSUZ FIRTINA" in strat_upper:
+          if "KARTAL ÖZEL" in strat_upper:
+            mesaj_satirlari.append(f"• 🦅🎯 {strat} (Master Hibrit: 15m Tetik + 1s Verimlilik Onayı)")
+          elif "KARTAL 1 S" in strat_upper:
+            mesaj_satirlari.append(f"• 🦅📊 {strat} (Saatlik Trend & 0.35 Verimlilik Süzgeci)")
+          elif "KARTAL 15DK" in strat_upper:
+            mesaj_satirlari.append(f"• 🦅⚡ {strat} (15m Agresif Dip Avcısı)")
+          elif "KUSURSUZ FIRTINA" in strat_upper:
             mesaj_satirlari.append(f"• ⚡⚡ {strat} (15m MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
           elif "KUSURSUZ YAKALA" in strat_upper:
             mesaj_satirlari.append(f"• 💎💎 {strat} (1s RVOL:{item['rvol_1h']:.2f} | 1s Konum:%{item['konum_1h']:.1f})")
