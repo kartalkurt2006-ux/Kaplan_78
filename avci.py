@@ -14,7 +14,7 @@ import yfinance as yf
 COOLDOWN_SECONDS = 3600  # Aynı hisse için 1 saat bekleme süresi
 TZ_TR = pytz.timezone("Europe/Istanbul")
 
-# Ntfy Kanal Ayarı
+# Ntfy Kanal Ayarı (Kaplan 78 Borsa Kanalı)
 NTFY_URL = "https://ntfy.sh/kaplan_78borsa"
 
 # Tek Merkezi Hafıza Dosyası
@@ -641,7 +641,7 @@ def run_scanner():
         mesaj_satirlari.append("----------------------------------------")
 
       final_mesaj = "\n".join(mesaj_satirlari)
-      send_ntfy(final_mesaj, "borsa_senet")
+      send_ntfy(final_mesaj, "BIST Sinyal Raporu")
       time.sleep(0.4)
 
   print("\nTüm Hisseler tarandı ve süreç tamamlandı.")
