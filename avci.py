@@ -160,15 +160,34 @@ def check_wave_margins(df, lookback=3, threshold_multiplier=0.80):
 
 
 # ==========================================
-# YENİ EKLENEN KARTAL MİMARİSİ TARAMA FONKSİYONLARI
+# GÜNCELLENMİŞ KARTAL MİMARİSİ TARAMA FONKSİYONLARI
 # ==========================================
 def scan_kartal_15dk(df):
-    """KARTAL 15dk: Esnek RVOL (>=0.6) ve %80 eşik kırılımı"""
+    """KARTAL 15dk: Esnek RVOL (>=0.6) + %80 eşik kırılımı + 0.35 Dalga Verimliliği"""
     triggered, _ = check_wave_margins(df, lookback=3, threshold_multiplier=0.80)
-    if not triggered or 'Volume' not in df.columns:
+    if not triggered or 'Volume' not in df.columns or 'High' not in df.columns or 'Low' not in df.columns:
         return False
-    rvol = df['Volume'] / df['Volume'].rolling(window=20).mean()
-    return triggered and (rvol.iloc[-1] >= 0.6)
+        
+    wave_sequence = [4, 8, 5, 8, 9]
+    total_cycle = sum(wave_sequence)
+    high = df['High'].values
+    low = df['Low'].values
+    volume = df['Volume'].values
+    
+    if len(high) < total_cycle:
+        return False
+        
+    recent_high = np.max(high[-total_cycle:])
+    recent_low = np.min(low[-total_cycle:])
+    margin_range = recent_high - recent_low
+    
+    rvol = volume / pd.Series(volume).rolling(window=20).mean().values
+    rvol_curr = rvol[-1] if not np.isnan(rvol[-1]) and rvol[-1] > 0 else 1e-5
+    
+    wave_efficiency = margin_range / rvol_curr
+    rvol_check = rvol_curr >= 0.6
+    
+    return triggered and rvol_check and (wave_efficiency > 0.35)
 
 def scan_kartal_1s(df):
     """KARTAL 1 S: Saatlik %80 eşik kırılımı + 0.35 Dalga Verimliliği Onayı"""
@@ -636,7 +655,7 @@ def run_scanner():
                 toplam_puan += 45.0
 
             # ==========================================
-            # YENİ KARTAL MİMARİSİ TARAMA ENTEGRASYONU
+            # KARTAL MİMARİSİ TARAMA ENTEGRASYONU (0.35 Verimlilik Güncellemeli)
             # ==========================================
             if scan_kartal_15dk(df_15m):
               if kayit_guncelle("kartal_15dk"):
@@ -723,7 +742,7 @@ def run_scanner():
           elif "KARTAL 1 S" in strat_upper:
             mesaj_satirlari.append(f"• 🦅📊 {strat} (Saatlik Trend & 0.35 Verimlilik Süzgeci)")
           elif "KARTAL 15DK" in strat_upper:
-            mesaj_satirlari.append(f"• 🦅⚡ {strat} (15m Agresif Dip Avcısı)")
+            mesaj_satirlari.append(f"• 🦅⚡ {strat} (15m Agresif Dip Avcısı & 0.35 Verimlilik)")
           elif "KUSURSUZ FIRTINA" in strat_upper:
             mesaj_satirlari.append(f"• ⚡⚡ {strat} (15m MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
           elif "KUSURSUZ YAKALA" in strat_upper:
