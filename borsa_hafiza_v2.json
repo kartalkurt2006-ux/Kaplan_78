@@ -79,19 +79,19 @@
                 "zaman": 1792012932.7647212,
                 "ilk_fiyat": 7.010000228881836,
                 "son_fiyat": 7.010000228881836,
-                "tekrar_sayisi": 2
+                "tekrar_sayisi": 3
             },
             "EGSER.IS": {
                 "zaman": 1792012932.7647212,
                 "ilk_fiyat": 2.5299999713897705,
                 "son_fiyat": 2.5299999713897705,
-                "tekrar_sayisi": 2
+                "tekrar_sayisi": 3
             },
             "GEREL.IS": {
                 "zaman": 1792012932.7647212,
                 "ilk_fiyat": 28.65999984741211,
                 "son_fiyat": 28.65999984741211,
-                "tekrar_sayisi": 2
+                "tekrar_sayisi": 3
             }
         },
         "deli_gitan_1h": {
@@ -99,13 +99,13 @@
                 "zaman": 1792012932.7647212,
                 "ilk_fiyat": 7.010000228881836,
                 "son_fiyat": 7.010000228881836,
-                "tekrar_sayisi": 2
+                "tekrar_sayisi": 3
             },
             "EGSER.IS": {
                 "zaman": 1792012932.7647212,
                 "ilk_fiyat": 2.5299999713897705,
                 "son_fiyat": 2.5299999713897705,
-                "tekrar_sayisi": 2
+                "tekrar_sayisi": 3
             }
         },
         "firtina_1": {
@@ -113,25 +113,25 @@
                 "zaman": 1792012932.7647212,
                 "ilk_fiyat": 2.5299999713897705,
                 "son_fiyat": 2.5299999713897705,
-                "tekrar_sayisi": 2
+                "tekrar_sayisi": 3
             },
             "GEREL.IS": {
                 "zaman": 1792012932.7647212,
                 "ilk_fiyat": 28.65999984741211,
                 "son_fiyat": 28.65999984741211,
-                "tekrar_sayisi": 2
+                "tekrar_sayisi": 3
             },
             "TMPOL.IS": {
                 "zaman": 1792012932.7647212,
                 "ilk_fiyat": 128.8000030517578,
                 "son_fiyat": 128.8000030517578,
-                "tekrar_sayisi": 2
+                "tekrar_sayisi": 3
             },
             "TTKOM.IS": {
                 "zaman": 1792012932.7647212,
                 "ilk_fiyat": 52.54999923706055,
                 "son_fiyat": 52.54999923706055,
-                "tekrar_sayisi": 2
+                "tekrar_sayisi": 3
             }
         },
         "kusursuz_yakala": {
