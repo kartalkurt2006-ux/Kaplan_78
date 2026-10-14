@@ -1,0 +1,146 @@
+{
+    "kayitlar": {
+        "dip_hibrit": {
+            "BIOEN.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 10.020000457763672,
+                "son_fiyat": 10.020000457763672,
+                "tekrar_sayisi": 1
+            },
+            "CELHA.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 31.559999465942383,
+                "son_fiyat": 31.559999465942383,
+                "tekrar_sayisi": 1
+            },
+            "CIMSA.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 40.31999969482422,
+                "son_fiyat": 40.31999969482422,
+                "tekrar_sayisi": 1
+            },
+            "CRFSA.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 221.39999389648438,
+                "son_fiyat": 221.39999389648438,
+                "tekrar_sayisi": 1
+            },
+            "DMRGD.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 6.630000114440918,
+                "son_fiyat": 6.630000114440918,
+                "tekrar_sayisi": 1
+            },
+            "EGSER.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 2.5299999713897705,
+                "son_fiyat": 2.5299999713897705,
+                "tekrar_sayisi": 1
+            },
+            "FRIGO.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 2.2699999809265137,
+                "son_fiyat": 2.2699999809265137,
+                "tekrar_sayisi": 1
+            },
+            "GEREL.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 28.65999984741211,
+                "son_fiyat": 28.65999984741211,
+                "tekrar_sayisi": 1
+            },
+            "HEDEF.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 18.239999771118164,
+                "son_fiyat": 18.239999771118164,
+                "tekrar_sayisi": 1
+            },
+            "KLSYN.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 14.420000076293945,
+                "son_fiyat": 14.420000076293945,
+                "tekrar_sayisi": 1
+            },
+            "NIBAS.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 3.240000009536743,
+                "son_fiyat": 3.240000009536743,
+                "tekrar_sayisi": 1
+            },
+            "SAYAS.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 38.2599983215332,
+                "son_fiyat": 38.2599983215332,
+                "tekrar_sayisi": 1
+            }
+        },
+        "1h_dalga_gorsel": {
+            "DURDO.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 7.010000228881836,
+                "son_fiyat": 7.010000228881836,
+                "tekrar_sayisi": 1
+            },
+            "EGSER.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 2.5299999713897705,
+                "son_fiyat": 2.5299999713897705,
+                "tekrar_sayisi": 1
+            },
+            "GEREL.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 28.65999984741211,
+                "son_fiyat": 28.65999984741211,
+                "tekrar_sayisi": 1
+            }
+        },
+        "deli_gitan_1h": {
+            "DURDO.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 7.010000228881836,
+                "son_fiyat": 7.010000228881836,
+                "tekrar_sayisi": 1
+            },
+            "EGSER.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 2.5299999713897705,
+                "son_fiyat": 2.5299999713897705,
+                "tekrar_sayisi": 1
+            }
+        },
+        "firtina_1": {
+            "EGSER.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 2.5299999713897705,
+                "son_fiyat": 2.5299999713897705,
+                "tekrar_sayisi": 1
+            },
+            "GEREL.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 28.65999984741211,
+                "son_fiyat": 28.65999984741211,
+                "tekrar_sayisi": 1
+            },
+            "TMPOL.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 128.8000030517578,
+                "son_fiyat": 128.8000030517578,
+                "tekrar_sayisi": 1
+            },
+            "TTKOM.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 52.54999923706055,
+                "son_fiyat": 52.54999923706055,
+                "tekrar_sayisi": 1
+            }
+        },
+        "kusursuz_yakala": {
+            "GEREL.IS": {
+                "zaman": 1792012932.7647212,
+                "ilk_fiyat": 28.65999984741211,
+                "son_fiyat": 28.65999984741211,
+                "tekrar_sayisi": 1
+            }
+        }
+    }
+}
