@@ -25,7 +25,8 @@ jobs:
 
       - name: Avci Scriptini Çalıştır
         env:
-          FORCE_RUN: "false"  # Normal seans akışı aktif
+          # Manuel tetiklendiğinde saat/seans engelini aşar, otomatikte normal seansa uyar
+          FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
         run: |
           python avci.py
 
