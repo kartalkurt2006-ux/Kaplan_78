@@ -265,6 +265,12 @@
                 "zaman": 1792063406.0497763,
                 "ilk_fiyat": 235.5,
                 "son_fiyat": 235.5,
+                "tekrar_sayisi": 2
+            },
+            "IZENR.IS": {
+                "zaman": 1792065063.385692,
+                "ilk_fiyat": 3.75,
+                "son_fiyat": 3.75,
                 "tekrar_sayisi": 1
             }
         },
@@ -996,8 +1002,8 @@
             "TTKOM.IS": {
                 "zaman": 1792020350.3635268,
                 "ilk_fiyat": 52.54999923706055,
-                "son_fiyat": 52.75,
-                "tekrar_sayisi": 11
+                "son_fiyat": 52.650001525878906,
+                "tekrar_sayisi": 12
             },
             "FRIGO.IS": {
                 "zaman": 1792048193.4987142,
@@ -1086,8 +1092,8 @@
             "YKBNK.IS": {
                 "zaman": 1792050129.7645903,
                 "ilk_fiyat": 36.2599983215332,
-                "son_fiyat": 36.400001525878906,
-                "tekrar_sayisi": 3
+                "son_fiyat": 36.34000015258789,
+                "tekrar_sayisi": 4
             },
             "AKFGY.IS": {
                 "zaman": 1792051728.6250062,
@@ -1146,7 +1152,13 @@
             "PCILT.IS": {
                 "zaman": 1792063406.0497763,
                 "ilk_fiyat": 30.81999969482422,
-                "son_fiyat": 30.81999969482422,
+                "son_fiyat": 30.739999771118164,
+                "tekrar_sayisi": 2
+            },
+            "IZENR.IS": {
+                "zaman": 1792065063.385692,
+                "ilk_fiyat": 3.75,
+                "son_fiyat": 3.75,
                 "tekrar_sayisi": 1
             }
         },
@@ -1227,6 +1239,18 @@
                 "zaman": 1792063406.0497763,
                 "ilk_fiyat": 109.4000015258789,
                 "son_fiyat": 109.4000015258789,
+                "tekrar_sayisi": 1
+            },
+            "ASELS.IS": {
+                "zaman": 1792065063.385692,
+                "ilk_fiyat": 349.5,
+                "son_fiyat": 349.5,
+                "tekrar_sayisi": 1
+            },
+            "MIATK.IS": {
+                "zaman": 1792065063.385692,
+                "ilk_fiyat": 26.6200008392334,
+                "son_fiyat": 26.6200008392334,
                 "tekrar_sayisi": 1
             }
         }
