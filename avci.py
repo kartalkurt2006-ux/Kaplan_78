@@ -160,84 +160,106 @@ def check_wave_margins(df, lookback=3, threshold_multiplier=0.80):
 
 
 # ==========================================
-# GÜNCELLENMİŞ KARTAL MİMARİSİ TARAMA FONKSİYONLARI
+# KARTAL MİMARİSİ TARAMA FONKSİYONLARI (Zırhlı ve Gelişmiş Haliyle)
 # ==========================================
 def scan_kartal_15dk(df):
-    """KARTAL 15dk: Esnek RVOL (>=0.6) + %80 eşik kırılımı + 0.35 Dalga Verimliliği"""
-    triggered, _ = check_wave_margins(df, lookback=3, threshold_multiplier=0.80)
-    if not triggered or 'Volume' not in df.columns or 'High' not in df.columns or 'Low' not in df.columns:
-        return False
+    """KARTAL 15dk: Esnek RVOL (>=0.6) + %80 eşik + 0.35 Verimlilik + +DI > 30 + MFI Son 12b > 70 (Hata Korumalı)"""
+    try:
+        triggered, _ = check_wave_margins(df, lookback=3, threshold_multiplier=0.80)
+        if not triggered or df.empty or len(df) < 35:
+            return False
+            
+        high = df['High']
+        low = df['Low']
+        close = df['Close']
+        volume = df['Volume']
         
-    wave_sequence = [4, 8, 5, 8, 9]
-    total_cycle = sum(wave_sequence)
-    high = df['High'].values
-    low = df['Low'].values
-    volume = df['Volume'].values
-    
-    if len(high) < total_cycle:
-        return False
+        wave_sequence = [4, 8, 5, 8, 9]
+        total_cycle = sum(wave_sequence)
+        if len(close) < total_cycle:
+            return False
+            
+        recent_high = high.iloc[-total_cycle:].max()
+        recent_low = low.iloc[-total_cycle:].min()
+        margin_range = recent_high - recent_low
         
-    recent_high = np.max(high[-total_cycle:])
-    recent_low = np.min(low[-total_cycle:])
-    margin_range = recent_high - recent_low
-    
-    rvol = volume / pd.Series(volume).rolling(window=20).mean().values
-    rvol_curr = rvol[-1] if not np.isnan(rvol[-1]) and rvol[-1] > 0 else 1e-5
-    
-    wave_efficiency = margin_range / rvol_curr
-    rvol_check = rvol_curr >= 0.6
-    
-    return triggered and rvol_check and (wave_efficiency > 0.35)
+        rvol = volume / volume.rolling(window=20).mean()
+        rvol_curr = rvol.iloc[-1] if not pd.isna(rvol.iloc[-1]) and rvol.iloc[-1] > 0 else 1e-5
+        
+        wave_efficiency = margin_range / rvol_curr
+        rvol_check = rvol_curr >= 0.6
+        
+        # +DI > 30 Güç Kontrolü
+        up_move = high.diff()
+        down_move = -low.diff()
+        plus_dm = up_move.where((up_move > down_move) & (up_move > 0), 0)
+        tr = pd.concat([high - low, (high - close.shift()).abs(), (low - close.shift()).abs()], axis=1).max(axis=1)
+        plus_di_ser = 100 * (plus_dm.rolling(14).sum() / (tr.rolling(14).sum() + 1e-10))
+        di_check = plus_di_ser.iloc[-1] > 30.0
+        
+        # MFI Son 12 barda 70 sınırı teyidi
+        mfi_ser = calculate_mfi(high, low, close, volume, 14)
+        mfi_check = (mfi_ser.iloc[-12:] > 70).any()
+        
+        return triggered and rvol_check and (wave_efficiency > 0.35) and di_check and mfi_check
+    except Exception:
+        return False
 
 def scan_kartal_1s(df):
-    """KARTAL 1 S: Saatlik %80 eşik kırılımı + 0.35 Dalga Verimliliği Onayı"""
-    triggered, _ = check_wave_margins(df, lookback=3, threshold_multiplier=0.80)
-    if not triggered or 'Volume' not in df.columns or 'High' not in df.columns or 'Low' not in df.columns:
-        return False
-    
-    wave_sequence = [4, 8, 5, 8, 9]
-    total_cycle = sum(wave_sequence)
-    high = df['High'].values
-    low = df['Low'].values
-    volume = df['Volume'].values
-    
-    if len(high) < total_cycle:
-        return False
+    """KARTAL 1 S: Saatlik %80 eşik kırılımı + 0.35 Dalga Verimliliği Onayı (Hata Korumalı)"""
+    try:
+        triggered, _ = check_wave_margins(df, lookback=3, threshold_multiplier=0.80)
+        if not triggered or df.empty or len(df) < 35:
+            return False
         
-    recent_high = np.max(high[-total_cycle:])
-    recent_low = np.min(low[-total_cycle:])
-    margin_range = recent_high - recent_low
-    
-    rvol = volume / pd.Series(volume).rolling(window=20).mean().values
-    rvol_curr = rvol[-1] if not np.isnan(rvol[-1]) and rvol[-1] > 0 else 1e-5
-    
-    wave_efficiency = margin_range / rvol_curr
-    return triggered and (wave_efficiency > 0.35)
+        wave_sequence = [4, 8, 5, 8, 9]
+        total_cycle = sum(wave_sequence)
+        high = df['High'].values
+        low = df['Low'].values
+        volume = df['Volume'].values
+        
+        if len(high) < total_cycle:
+            return False
+            
+        recent_high = np.max(high[-total_cycle:])
+        recent_low = np.min(low[-total_cycle:])
+        margin_range = recent_high - recent_low
+        
+        rvol = volume / pd.Series(volume).rolling(window=20).mean().values
+        rvol_curr = rvol[-1] if not np.isnan(rvol[-1]) and rvol[-1] > 0 else 1e-5
+        
+        wave_efficiency = margin_range / rvol_curr
+        return triggered and (wave_efficiency > 0.35)
+    except Exception:
+        return False
 
 def scan_kartal_ozel(df_15m, df_1s):
     """KARTAL ÖZEL: 15dk Erken Tetik + 1s Saatlik 0.35 Dalga Verimliliği Onayı (Master Hibrit)"""
-    tetik_15m = scan_kartal_15dk(df_15m)
-    if not tetik_15m or df_1s.empty:
-        return False
+    try:
+        tetik_15m = scan_kartal_15dk(df_15m)
+        if not tetik_15m or df_1s.empty or len(df_1s) < 35:
+            return False
+            
+        wave_sequence = [4, 8, 5, 8, 9]
+        total_cycle = sum(wave_sequence)
+        high_1s = df_1s['High'].values
+        low_1s = df_1s['Low'].values
+        volume_1s = df_1s['Volume'].values
         
-    wave_sequence = [4, 8, 5, 8, 9]
-    total_cycle = sum(wave_sequence)
-    high_1s = df_1s['High'].values
-    low_1s = df_1s['Low'].values
-    volume_1s = df_1s['Volume'].values
-    
-    if len(high_1s) < total_cycle:
-        return False
+        if len(high_1s) < total_cycle:
+            return False
+            
+        recent_high_1s = np.max(high_1s[-total_cycle:])
+        recent_low_1s = np.min(low_1s[-total_cycle:])
+        margin_range_1s = recent_high_1s - recent_low_1s
         
-    recent_high_1s = np.max(high_1s[-total_cycle:])
-    recent_low_1s = np.min(low_1s[-total_cycle:])
-    margin_range_1s = recent_high_1s - recent_low_1s
-    
-    rvol_1s = volume_1s / pd.Series(volume_1s).rolling(window=20).mean().values
-    rvol_curr_1s = rvol_1s[-1] if not np.isnan(rvol_1s[-1]) and rvol_1s[-1] > 0 else 1e-5
-    
-    efficiency_1s = margin_range_1s / rvol_curr_1s
-    return tetik_15m and (efficiency_1s > 0.35)
+        rvol_1s = volume_1s / pd.Series(volume_1s).rolling(window=20).mean().values
+        rvol_curr_1s = rvol_1s[-1] if not np.isnan(rvol_1s[-1]) and rvol_1s[-1] > 0 else 1e-5
+        
+        efficiency_1s = margin_range_1s / rvol_curr_1s
+        return tetik_15m and (efficiency_1s > 0.35)
+    except Exception:
+        return False
 
 
 def hafiza_yukle():
@@ -348,7 +370,7 @@ def run_scanner():
   is_manual_run = os.environ.get("FORCE_RUN", "false").lower() == "true"
   
   print(
-      f"[{datetime.now(TZ_TR).strftime('%Y-%m-%d %H:%M:%S')}] Erken Avcı (Hibrit Çekirge) Sistemi Başlatıldı... (Manuel Mod: {is_manual_run})"
+      f"[{datetime.now(TZ_TR).strftime('%Y-%m-%d %H:%M:%S')}] Erken Avcı Sistemi Başlatıldı... (Manuel Mod: {is_manual_run})"
   )
 
   tum_hafiza = hafiza_yukle()
@@ -475,29 +497,7 @@ def run_scanner():
                 tetiklenen_str.append("1 Saat Yakala")
                 toplam_puan += 25.0
 
-            # Strateji: Kusursuz Yakala (Kesişme VEYA Üstünde/Üstünlük Mantığı ile)
-            genlik_1h = (high_1h.rolling(3).max() - low_1h.rolling(3).min()) / close_1h
-            dalga_verimliligi_1h = genlik_1h / (rvol_1h + 1e-5)
-            hacim_erken_1h = (rvol_1h >= 1.4) & (volume_1h > volume_1h.shift(1))
-            verimlilik_onay_1h = dalga_verimliligi_1h.iloc[-1] > 0.35
-            
-            di_kesisim_1h = (plus_di_ser_1h.iloc[-2] <= minus_di_ser_1h.iloc[-2]) and (plus_di_ser_1h.iloc[-1] > minus_di_ser_1h.iloc[-1])
-            di_ustunluk_1h = (plus_di_1h > minus_di_1h) and (plus_di_1h > 20)
-            dmi_esnek_onay_1h = di_kesisim_1h or di_ustunluk_1h
-
-            kusursuz_yakala_sarti = (
-                (close_curr_1h > hma20_1h_curr)
-                and wave_breakout_1h
-                and hacim_erken_1h.iloc[-1]
-                and verimlilik_onay_1h
-                and dmi_esnek_onay_1h
-            )
-            if kusursuz_yakala_sarti:
-              if kayit_guncelle("kusursuz_yakala"):
-                tetiklenen_str.append("Kusursuz Yakala")
-                toplam_puan += 35.0
-
-            # Strateji: DELİRDİ 1 Saat (Orijinal Haliyle Korundu: RVOL >= 2.0)
+            # Strateji: DELİRDİ 1 Saat (RVOL >= 2.0)
             if (close_curr_1h > hma20_1h_curr) and (rvol_1h >= 2.0) and wave_breakout_1h:
               if kayit_guncelle("deli_gitan_1h"):
                 tetiklenen_str.append("DELİRDİ 1 Saat")
@@ -550,16 +550,6 @@ def run_scanner():
             kijun_26 = (high_15m.rolling(26).max() + low_15m.rolling(26).min()) / 2
             senkou_span_a = (tenkan_9 + kijun_26) / 2
             senkou_span_b = (high_15m.rolling(52).max() + low_15m.rolling(52).min()) / 2
-            kumo_ust = pd.concat([senkou_span_a, senkou_span_b], axis=1).max(axis=1)
-
-            bulut_kirilimi = (close_15m.iloc[-2] <= kumo_ust.iloc[-2]) and (close_15m.iloc[-1] > kumo_ust.iloc[-1])
-            bulut_ustunde = close_15m.iloc[-1] > kumo_ust.iloc[-1]
-            ichimoku_hibrit_onay = bulut_kirilimi or bulut_ustunde
-
-            bulut_kalinligi_15m = (senkou_span_a - senkou_span_b).abs()
-            cok_ince_bulut_15m = bulut_kalinligi_15m.iloc[-1] < (close_15m.iloc[-1] * 0.015)
-            daralan_trend_15m = (bulut_kalinligi_15m.iloc[-1] < bulut_kalinligi_15m.iloc[-2]) and (bulut_kalinligi_15m.iloc[-2] < bulut_kalinligi_15m.iloc[-3])
-            daralan_bulut_onay_15m = cok_ince_bulut_15m or daralan_trend_15m
 
             span_a_kirilimi_15m = (close_15m.iloc[-2] <= senkou_span_a.iloc[-2]) and (close_15m.iloc[-1] > senkou_span_a.iloc[-1])
             span_a_ustunde_15m = close_15m.iloc[-1] > senkou_span_a.iloc[-1]
@@ -570,7 +560,6 @@ def run_scanner():
             hma9_ustunde_span_a_15m = hma9_15m.iloc[-1] > senkou_span_a.iloc[-1]
             hma9_esnek_sarti = hma9_kesisir_span_a_15m or hma9_ustunde_span_a_15m
 
-            # --- TEHLİKELİ HİBRİT MFI VE Dİ KOŞULLARI (RVOL >= 0.6 Esnek Erken Yapı) ---
             di_kesisim_15m = (plus_di_ser_15m.iloc[-2] <= minus_di_ser_15m.iloc[-2]) and (plus_di_ser_15m.iloc[-1] > minus_di_ser_15m.iloc[-1])
             di_15m_kosul = (plus_di_15m > 20.0) or di_kesisim_15m
 
@@ -582,7 +571,7 @@ def run_scanner():
             rvol_15m_dip = (volume_15m / volume_15m.rolling(20).mean()).iloc[-1]
             hacim_erken_dip_06 = (rvol_15m_dip >= 0.6)
 
-            # --- STRATEJİ: 🦅 ÇEKİRGE ---
+            # --- STRATEJİ: ÇEKİRGE ---
             if (
                 wave_breakout_15m
                 and (dalga_verimlilik_skoru_15m > 0.5)
@@ -595,32 +584,7 @@ def run_scanner():
                 tetiklenen_str.append("ÇEKİRGE")
                 toplam_puan += 45.0
 
-            # --- FIRTINA 1 STRATEJİSİ ---
-            firtina_bulut_sarti = span_a_esnek_onay_15m or ichimoku_hibrit_onay or daralan_bulut_onay_15m
-
-            mfi_window_12_firtina = mfi_ser_15m.iloc[-12:]
-            firtina_mfi_above = (mfi_window_12_firtina > 70).any()
-            firtina_mfi_cross = False
-            for idx in range(len(mfi_ser_15m) - 11, len(mfi_ser_15m)):
-                if idx > 0:
-                    if mfi_ser_15m.iloc[idx - 1] <= 70 and mfi_ser_15m.iloc[idx] > 70:
-                        firtina_mfi_cross = True
-                        break
-            firtina_mfi_onay = firtina_mfi_above or firtina_mfi_cross
-
-            if (
-                not df_1h.empty and len(df_1h) >= 40
-                and wave_breakout_1h
-                and (close_curr_1h > hma20_1h_curr)
-                and firtina_bulut_sarti
-                and (plus_di_15m > 20.0)
-                and firtina_mfi_onay
-            ):
-              if kayit_guncelle("firtina_1"):
-                tetiklenen_str.append("FIRTINA 1")
-                toplam_puan += 40.0
-
-            # --- TEHLİKELİ HİBRİT STRATEJİSİ (RVOL >= 0.6 ile Güncellendi) ---
+            # --- TEHLİKELİ HİBRİT STRATEJİSİ ---
             if (
                 (plus_di_1h > 25.0)
                 and hma9_esnek_sarti
@@ -632,30 +596,8 @@ def run_scanner():
                 tetiklenen_str.append("TEHLİKELİ HİBRİT")
                 toplam_puan += 30.0
 
-            # --- KUSURSUZ FIRTINA ⚡ ---
-            rvol_15m = (volume_15m / volume_15m.rolling(20).mean()).iloc[-1]
-            genlik_15m = (high_15m.rolling(3).max() - low_15m.rolling(3).min()) / close_15m
-            dalga_verimliligi_15m_yeni = genlik_15m / (rvol_15m + 1e-5)
-            hacim_erken_15m = (rvol_15m >= 1.4) & (volume_15m > volume_15m.shift(1))
-            verimlilik_onay_15m = dalga_verimliligi_15m_yeni.iloc[-1] > 0.35
-
-            kusursuz_firtina_sarti = (
-                not df_1h.empty and len(df_1h) >= 40
-                and wave_breakout_1h
-                and (close_curr_1h > hma20_1h_curr)
-                and firtina_bulut_sarti
-                and firtina_mfi_onay
-                and hacim_erken_15m.iloc[-1]
-                and verimlilik_onay_15m
-            )
-
-            if kusursuz_firtina_sarti:
-              if kayit_guncelle("kusursuz_firtina"):
-                tetiklenen_str.append("KUSURSUZ FIRTINA ⚡")
-                toplam_puan += 45.0
-
             # ==========================================
-            # KARTAL MİMARİSİ TARAMA ENTEGRASYONU (0.35 Verimlilik Güncellemeli)
+            # KARTAL MİMARİSİ TARAMA ENTEGRASYONU
             # ==========================================
             if scan_kartal_15dk(df_15m):
               if kayit_guncelle("kartal_15dk"):
@@ -715,17 +657,10 @@ def run_scanner():
       for item in alt_grup:
         strats_upper = [s.upper() for s in item['stratejiler']]
         has_both_1h = ("1 SAAT YAKALA" in strats_upper) and ("DELİRDİ 1 SAAT" in strats_upper)
-        has_yakala_firtina = ("1 SAAT YAKALA" in strats_upper) and ("FIRTINA 1" in strats_upper)
         strat_count = len(item['stratejiler'])
-        is_konum_yuksek = item['konum_1h'] >= 85.0
 
         if has_both_1h:
           prefix = "👑🚨 DİKKAT: 1S ÇİFTE ALARM 🚨👑"
-        elif has_yakala_firtina:
-          if is_konum_yuksek:
-            prefix = "🐒🐒 DİKKAT 🐒🐒 DİKKAT 🐒🐒 (%85+ TEPE)"
-          else:
-            prefix = "🐒🐒 DİKKAT 🐒🐒 DİKKAT 🐒🐒"
         elif strat_count >= 3:
           prefix = "🚀🚀🚀 Hisse:"
         elif strat_count == 2:
@@ -743,14 +678,8 @@ def run_scanner():
             mesaj_satirlari.append(f"• 🦅📊 {strat} (Saatlik Trend & 0.35 Verimlilik Süzgeci)")
           elif "KARTAL 15DK" in strat_upper:
             mesaj_satirlari.append(f"• 🦅⚡ {strat} (15m Agresif Dip Avcısı & 0.35 Verimlilik)")
-          elif "KUSURSUZ FIRTINA" in strat_upper:
-            mesaj_satirlari.append(f"• ⚡⚡ {strat} (15m MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
-          elif "KUSURSUZ YAKALA" in strat_upper:
-            mesaj_satirlari.append(f"• 💎💎 {strat} (1s RVOL:{item['rvol_1h']:.2f} | 1s Konum:%{item['konum_1h']:.1f})")
           elif "ÇEKİRGE" in strat_upper:
             mesaj_satirlari.append(f"• 🦅🦅 {strat} (15m Hibrit Kırılım | MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
-          elif "FIRTINA 1" in strat_upper:
-            mesaj_satirlari.append(f"• 🛡️ {strat} (15m MFI:{item['mfi_15m']:.1f} | 15m +DI:{item['plus_di_15m']:.1f} | 1s Konum:%{item['konum_1h']:.1f})")
           elif "TEHLİKELİ HİBRİT" in strat_upper:
             mesaj_satirlari.append(f"• 🟢🟢🟢 {strat} (15m MFI:{item['mfi_15m']:.1f} | 15m +DI:{item['plus_di_15m']:.1f})")
           elif "DELİRDİ" in strat_upper and "1 SAAT" in strat_upper:
