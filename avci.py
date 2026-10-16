@@ -693,7 +693,7 @@ def run_scanner():
           elif "KARTAL 15DK" in strat_upper:
             mesaj_satirlari.append(f"• 🦅⚡ {strat} (15m Agresif Dip Avcısı & 0.35 Verimlilik)")
           elif "ÇEKİRGE" in strat_upper:
-            mesaj_satirlari.append(f"• 🦅🦅 {strat} (15m Hibrit Kırılım | MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
+            mesaj_satirlari.append(f"• 🌿🚀🐕 {strat} (15m Hibrit Kırılım | MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
           elif "TEHLİKELİ HİBRİT" in strat_upper:
             mesaj_satirlari.append(f"• 🟢🟢🟢 {strat} (15m MFI:{item['mfi_15m']:.1f} | 15m +DI:{item['plus_di_15m']:.1f})")
           elif "DELİRDİ" in strat_upper and "1 SAAT" in strat_upper:
