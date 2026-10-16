@@ -14,8 +14,8 @@ import yfinance as yf
 COOLDOWN_SECONDS = 3600  # Aynı hisse için 1 saat bekleme süresi
 TZ_TR = pytz.timezone("Europe/Istanbul")
 
-# Ntfy Kanal Ayarı (Kaplan 78 Borsa Kanalı)
-NTFY_URL = "https://ntfy.sh/kaplan_78borsa"
+# Ntfy Kanal Ayarı (Doğru kanal: kartal_7878)
+NTFY_URL = "https://ntfy.sh/kartal_7878"
 
 # Tek Merkezi Hafıza Dosyası
 MERKEZI_HAFIZA_DOSYASI = "borsa_hafiza_v2.json"
@@ -159,11 +159,7 @@ def check_wave_margins(df, lookback=3, threshold_multiplier=0.80):
     return False, 50.0
 
 
-# ==========================================
-# KARTAL MİMARİSİ TARAMA FONKSİYONLARI (Zırhlı ve Gelişmiş Haliyle)
-# ==========================================
 def scan_kartal_15dk(df):
-    """KARTAL 15dk: Esnek RVOL (>=0.6) + %80 eşik + 0.35 Verimlilik + +DI > 30 + MFI Son 12b > 70 (Hata Korumalı)"""
     try:
         triggered, _ = check_wave_margins(df, lookback=3, threshold_multiplier=0.80)
         if not triggered or df.empty or len(df) < 35:
@@ -189,7 +185,6 @@ def scan_kartal_15dk(df):
         wave_efficiency = margin_range / rvol_curr
         rvol_check = rvol_curr >= 0.6
         
-        # +DI > 30 Güç Kontrolü
         up_move = high.diff()
         down_move = -low.diff()
         plus_dm = up_move.where((up_move > down_move) & (up_move > 0), 0)
@@ -197,7 +192,6 @@ def scan_kartal_15dk(df):
         plus_di_ser = 100 * (plus_dm.rolling(14).sum() / (tr.rolling(14).sum() + 1e-10))
         di_check = plus_di_ser.iloc[-1] > 30.0
         
-        # MFI Son 12 barda 70 sınırı teyidi
         mfi_ser = calculate_mfi(high, low, close, volume, 14)
         mfi_check = (mfi_ser.iloc[-12:] > 70).any()
         
@@ -206,7 +200,6 @@ def scan_kartal_15dk(df):
         return False
 
 def scan_kartal_1s(df):
-    """KARTAL 1 S: Saatlik %80 eşik kırılımı + 0.35 Dalga Verimliliği Onayı (Hata Korumalı)"""
     try:
         triggered, _ = check_wave_margins(df, lookback=3, threshold_multiplier=0.80)
         if not triggered or df.empty or len(df) < 35:
@@ -234,7 +227,6 @@ def scan_kartal_1s(df):
         return False
 
 def scan_kartal_ozel(df_15m, df_1s):
-    """KARTAL ÖZEL: 15dk Erken Tetik + 1s Saatlik 0.35 Dalga Verimliliği Onayı (Master Hibrit)"""
     try:
         tetik_15m = scan_kartal_15dk(df_15m)
         if not tetik_15m or df_1s.empty or len(df_1s) < 35:
@@ -327,7 +319,8 @@ def send_ntfy(message, baslik):
 def download_with_retry(chunk, interval, period, max_retries=4):
   for attempt in range(1, max_retries + 1):
     try:
-      df_all = yf.download(chunk, period=period, interval=interval, group_by='ticker', progress=False, threads=True)
+      # threads=False yapılarak dıştaki ThreadPoolExecutor ile çakışması engellendi
+      df_all = yf.download(chunk, period=period, interval=interval, group_by='ticker', progress=False, threads=False)
       if df_all is not None and not df_all.empty:
         return df_all
     except Exception as e:
@@ -403,7 +396,6 @@ def run_scanner():
       guncel_fiyat = 0.0
       toplam_puan = 0.0
 
-      # --- 1 SAATLİK (MAKRO) DEĞİŞKENLER ---
       rsi_1h = 0.0
       mfi_1h = 50.0
       plus_di_1h = 0.0
@@ -412,7 +404,6 @@ def run_scanner():
       wave_breakout_1h = False
       hma20_1h_curr = 0.0
 
-      # --- 15 DAKİKALIK (MİKRO) DEĞİŞKENLER ---
       mfi_15m = 50.0
       plus_di_15m = 0.0
       dalga_verimlilik_skoru_15m = 0.0
@@ -440,9 +431,6 @@ def run_scanner():
                 return True
             return simdi_epoch - son_zaman > COOLDOWN_SECONDS
 
-        # ==========================================
-        # 1. 1 SAATLİK VERİ ANALİZİ
-        # ==========================================
         df_1h = extract_ticker_df(df_1h_all, clean_ticker, chunk)
         if not df_1h.empty and len(df_1h) >= 40:
           if isinstance(df_1h.columns, pd.MultiIndex):
@@ -457,18 +445,15 @@ def run_scanner():
             close_curr_1h = close_1h.iloc[-1]
             guncel_fiyat = close_curr_1h
 
-            # RSI (14) - 1s
             delta_1h = close_1h.diff()
             gain_1h = (delta_1h.where(delta_1h > 0, 0)).rolling(14).mean()
             loss_1h = (-delta_1h.where(delta_1h < 0, 0)).rolling(14).mean()
             rs_1h = gain_1h / (loss_1h + 1e-10)
             rsi_1h = (100 - (100 / (1 + rs_1h))).iloc[-1]
 
-            # MFI (14) - 1s
             mfi_ser_1h = calculate_mfi(high_1h, low_1h, close_1h, volume_1h, 14)
             mfi_1h = mfi_ser_1h.iloc[-1]
 
-            # +DI / -DI (14) - 1s
             up_move_1h = high_1h.diff()
             down_move_1h = -low_1h.diff()
             plus_dm_1h = up_move_1h.where((up_move_1h > down_move_1h) & (up_move_1h > 0), 0)
@@ -481,7 +466,6 @@ def run_scanner():
             plus_di_1h = plus_di_ser_1h.iloc[-1]
             minus_di_1h = minus_di_ser_1h.iloc[-1]
 
-            # RVOL - 1s
             rvol_1h = (volume_1h / volume_1h.rolling(20).mean()).iloc[-1]
 
             wave_res_1h = check_wave_margins(df_1h, lookback=3, threshold_multiplier=0.80)
@@ -491,21 +475,16 @@ def run_scanner():
             hma20_1h = calculate_hma(close_1h, 20)
             hma20_1h_curr = hma20_1h.iloc[-1]
 
-            # Strateji: 1 Saat Yakala
             if (close_curr_1h > hma20_1h_curr) and (rsi_1h > 50) and (plus_di_1h > 25) and wave_breakout_1h:
               if kayit_guncelle("1h_dalga_gorsel"):
                 tetiklenen_str.append("1 Saat Yakala")
                 toplam_puan += 25.0
 
-            # Strateji: DELİRDİ 1 Saat (RVOL >= 2.0)
             if (close_curr_1h > hma20_1h_curr) and (rvol_1h >= 2.0) and wave_breakout_1h:
               if kayit_guncelle("deli_gitan_1h"):
                 tetiklenen_str.append("DELİRDİ 1 Saat")
                 toplam_puan += 35.0
 
-        # ==========================================
-        # 2. 15 DAKİKALIK VERİ ANALİZİ
-        # ==========================================
         df_15m = extract_ticker_df(df_15m_all, clean_ticker, chunk)
         if not df_15m.empty and len(df_15m) >= 40:
           if isinstance(df_15m.columns, pd.MultiIndex):
@@ -571,7 +550,6 @@ def run_scanner():
             rvol_15m_dip = (volume_15m / volume_15m.rolling(20).mean()).iloc[-1]
             hacim_erken_dip_06 = (rvol_15m_dip >= 0.6)
 
-            # --- STRATEJİ: ÇEKİRGE ---
             if (
                 wave_breakout_15m
                 and (dalga_verimlilik_skoru_15m > 0.5)
@@ -584,7 +562,6 @@ def run_scanner():
                 tetiklenen_str.append("ÇEKİRGE")
                 toplam_puan += 45.0
 
-            # --- TEHLİKELİ HİBRİT STRATEJİSİ ---
             if (
                 (plus_di_1h > 25.0)
                 and hma9_esnek_sarti
@@ -596,9 +573,6 @@ def run_scanner():
                 tetiklenen_str.append("TEHLİKELİ HİBRİT")
                 toplam_puan += 30.0
 
-            # ==========================================
-            # KARTAL MİMARİSİ TARAMA ENTEGRASYONU
-            # ==========================================
             if scan_kartal_15dk(df_15m):
               if kayit_guncelle("kartal_15dk"):
                 tetiklenen_str.append("KARTAL 15dk")
