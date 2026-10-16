@@ -547,7 +547,7 @@ def run_scanner():
             hacim_erken_dip_06 = (rvol_15m_dip >= 0.6)
 
             # =========================================================================
-            # 🚀 YENİ "ÇEKİRGE" STRATEJİSİ (1S MAKRO ONAY + 15M MİKRO TETİKLEME)
+            # 🦗 YENİ NESİL ÇEKİRGE STRATEJİSİ (Makro Omurga + MFI 60 + Stoch RSI + Daralan Bulut)
             # =========================================================================
             makro_cekirge_onay = False
             if not df_1h.empty and len(df_1h) >= 35:
@@ -575,17 +575,26 @@ def run_scanner():
                     makro_cekirge_onay = makro_verimlilik_1h and makro_di_1h and makro_hma20_1h
 
             # 15m Mikro Tetikleyiciler
+            mfi_60_sarti_15m = (mfi_ser_15m.iloc[-12:] > 60.0).any()
+
+            lowest_k_15m = low_15m.rolling(14).min()
+            highest_k_15m = high_15m.rolling(14).max()
+            stoch_k_15m = 100 * (close_15m - lowest_k_15m) / (highest_k_15m - lowest_k_15m + 1e-10)
+            stoch_esnek_dip = (stoch_k_15m.iloc[-1] <= 25.0) or (stoch_k_15m.iloc[-1] > stoch_k_15m.iloc[-2])
+
+            span_b_15m = (high_15m.rolling(52).max() + low_15m.rolling(52).min()) / 2
+            bulut_kalinligi_15m = (senkou_span_a - span_b_15m).abs()
+            daralan_bulut_15m = bulut_kalinligi_15m.iloc[-1] < bulut_kalinligi_15m.rolling(20).mean().iloc[-1]
+
             sma20_15m = close_15m.rolling(20).mean()
             std20_15m = close_15m.rolling(20).std()
             upper_bb_15m = sma20_15m + (std20_15m * 2)
             lower_bb_15m = sma20_15m - (std20_15m * 2)
             band_width_15m = (upper_bb_15m - lower_bb_15m) / (sma20_15m + 1e-10)
-            
             bb_squeeze_15m = band_width_15m.iloc[-1] < band_width_15m.rolling(20).mean().iloc[-1]
             bb_orta_ustu_15m = close_15m.iloc[-1] >= sma20_15m.iloc[-1]
-            mfi_50_ustu_15m = mfi_15m > 50.0
 
-            mikro_cekirge_tetik = (bb_squeeze_15m or bb_orta_ustu_15m) and hma9_esnek_sarti and mfi_50_ustu_15m
+            mikro_cekirge_tetik = (bb_squeeze_15m or bb_orta_ustu_15m or daralan_bulut_15m) and hma9_esnek_sarti and mfi_60_sarti_15m and stoch_esnek_dip
 
             if makro_cekirge_onay and mikro_cekirge_tetik:
               if kayit_guncelle("cekirge_15m"):
