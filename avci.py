@@ -541,25 +541,57 @@ def run_scanner():
             di_kesisim_15m = (plus_di_ser_15m.iloc[-2] <= minus_di_ser_15m.iloc[-2]) and (plus_di_ser_15m.iloc[-1] > minus_di_ser_15m.iloc[-1])
             di_15m_kosul = (plus_di_15m > 20.0) or di_kesisim_15m
 
-            mfi_12bar_70 = (mfi_ser_15m.iloc[-12:] > 70).any()
-            mfi_son_4bar_50 = (mfi_ser_15m.iloc[-4:] > 50).all()
-            mfi_son_bar_kosul = mfi_ser_15m.iloc[-1] > 50
-            hibrit_mfi_onay = mfi_12bar_70 and mfi_son_4bar_50 and mfi_son_bar_kosul
+            hibrit_mfi_onay = (mfi_ser_15m.iloc[-12:] > 70).any() and (mfi_ser_15m.iloc[-4:] > 50).all() and (mfi_ser_15m.iloc[-1] > 50)
 
             rvol_15m_dip = (volume_15m / volume_15m.rolling(20).mean()).iloc[-1]
             hacim_erken_dip_06 = (rvol_15m_dip >= 0.6)
 
-            if (
-                wave_breakout_15m
-                and (dalga_verimlilik_skoru_15m > 0.5)
-                and span_a_esnek_onay_15m
-                and hma9_esnek_sarti
-                and hibrit_mfi_onay
-                and di_15m_kosul
-            ):
+            # =========================================================================
+            # 🚀 YENİ "ÇEKİRGE" STRATEJİSİ (1S MAKRO ONAY + 15M MİKRO TETİKLEME)
+            # =========================================================================
+            makro_cekirge_onay = False
+            if not df_1h.empty and len(df_1h) >= 35:
+                high_np_1h = df_1h['High'].values
+                low_np_1h = df_1h['Low'].values
+                vol_np_1h = df_1h['Volume'].values
+                
+                wave_sequence = [4, 8, 5, 8, 9]
+                total_cycle_1h = sum(wave_sequence)
+                
+                if len(high_np_1h) >= total_cycle_1h:
+                    recent_high_1h = np.max(high_np_1h[-total_cycle_1h:])
+                    recent_low_1h = np.min(low_np_1h[-total_cycle_1h:])
+                    margin_range_1h = recent_high_1h - recent_low_1h
+                    
+                    rvol_series_1h = vol_np_1h / pd.Series(vol_np_1h).rolling(window=20).mean().values
+                    rvol_curr_1h = rvol_series_1h[-1] if not np.isnan(rvol_series_1h[-1]) and rvol_series_1h[-1] > 0 else 1e-5
+                    
+                    efficiency_1h = margin_range_1h / rvol_curr_1h
+                    
+                    makro_verimlilik_1h = efficiency_1h > 0.35
+                    makro_di_1h = plus_di_1h > 25.0
+                    makro_hma20_1h = guncel_fiyat > hma20_1h_curr
+                    
+                    makro_cekirge_onay = makro_verimlilik_1h and makro_di_1h and makro_hma20_1h
+
+            # 15m Mikro Tetikleyiciler
+            sma20_15m = close_15m.rolling(20).mean()
+            std20_15m = close_15m.rolling(20).std()
+            upper_bb_15m = sma20_15m + (std20_15m * 2)
+            lower_bb_15m = sma20_15m - (std20_15m * 2)
+            band_width_15m = (upper_bb_15m - lower_bb_15m) / (sma20_15m + 1e-10)
+            
+            bb_squeeze_15m = band_width_15m.iloc[-1] < band_width_15m.rolling(20).mean().iloc[-1]
+            bb_orta_ustu_15m = close_15m.iloc[-1] >= sma20_15m.iloc[-1]
+            mfi_50_ustu_15m = mfi_15m > 50.0
+
+            mikro_cekirge_tetik = (bb_squeeze_15m or bb_orta_ustu_15m) and hma9_esnek_sarti and mfi_50_ustu_15m
+
+            if makro_cekirge_onay and mikro_cekirge_tetik:
               if kayit_guncelle("cekirge_15m"):
                 tetiklenen_str.append("ÇEKİRGE")
                 toplam_puan += 45.0
+            # =========================================================================
 
             if (
                 (plus_di_1h > 25.0)
