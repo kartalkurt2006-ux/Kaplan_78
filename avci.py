@@ -14,8 +14,8 @@ import yfinance as yf
 COOLDOWN_SECONDS = 3600  # Aynı hisse için 1 saat bekleme süresi
 TZ_TR = pytz.timezone("Europe/Istanbul")
 
-# Ntfy Kanal Ayarı (Doğru kanal: kartal_7878)
-NTFY_URL = "https://ntfy.sh/kartal_7878"
+# Ntfy Kanal Ayarı (Orijinal adresin)
+NTFY_URL = "https://ntfy.sh/kaplan_78borsa"
 
 # Tek Merkezi Hafıza Dosyası
 MERKEZI_HAFIZA_DOSYASI = "borsa_hafiza_v2.json"
@@ -319,7 +319,6 @@ def send_ntfy(message, baslik):
 def download_with_retry(chunk, interval, period, max_retries=4):
   for attempt in range(1, max_retries + 1):
     try:
-      # threads=False yapılarak dıştaki ThreadPoolExecutor ile çakışması engellendi
       df_all = yf.download(chunk, period=period, interval=interval, group_by='ticker', progress=False, threads=False)
       if df_all is not None and not df_all.empty:
         return df_all
