@@ -378,8 +378,8 @@
             "DOCO.IS": {
                 "zaman": 1792054331.2912478,
                 "ilk_fiyat": 10885.0,
-                "son_fiyat": 10980.0,
-                "tekrar_sayisi": 7
+                "son_fiyat": 11172.5,
+                "tekrar_sayisi": 8
             },
             "AKSEN.IS": {
                 "zaman": 1792059375.788754,
@@ -397,7 +397,7 @@
                 "zaman": 1792063406.0497763,
                 "ilk_fiyat": 235.5,
                 "son_fiyat": 242.0,
-                "tekrar_sayisi": 11
+                "tekrar_sayisi": 12
             },
             "IZENR.IS": {
                 "zaman": 1792065063.385692,
@@ -451,7 +451,7 @@
                 "zaman": 1792136299.216407,
                 "ilk_fiyat": 7.400000095367432,
                 "son_fiyat": 7.400000095367432,
-                "tekrar_sayisi": 1
+                "tekrar_sayisi": 2
             },
             "IZFAS.IS": {
                 "zaman": 1792136299.216407,
@@ -1356,8 +1356,8 @@
             "HUBVC.IS": {
                 "zaman": 1792048193.4987142,
                 "ilk_fiyat": 2.0899999141693115,
-                "son_fiyat": 2.1700000762939453,
-                "tekrar_sayisi": 3
+                "son_fiyat": 2.369999885559082,
+                "tekrar_sayisi": 4
             },
             "INGRM.IS": {
                 "zaman": 1792048193.4987142,
@@ -1470,8 +1470,8 @@
             "DOCO.IS": {
                 "zaman": 1792054331.2912478,
                 "ilk_fiyat": 10885.0,
-                "son_fiyat": 10980.0,
-                "tekrar_sayisi": 7
+                "son_fiyat": 11172.5,
+                "tekrar_sayisi": 8
             },
             "INDES.IS": {
                 "zaman": 1792054331.2912478,
@@ -1604,8 +1604,8 @@
             "DOCO.IS": {
                 "zaman": 1792057889.399938,
                 "ilk_fiyat": 10930.0,
-                "son_fiyat": 10980.0,
-                "tekrar_sayisi": 5
+                "son_fiyat": 11172.5,
+                "tekrar_sayisi": 6
             },
             "ISMEN.IS": {
                 "zaman": 1792057889.399938,
