@@ -594,7 +594,7 @@ def run_scanner():
             bb_squeeze_15m = band_width_15m.iloc[-1] < band_width_15m.rolling(20).mean().iloc[-1]
             bb_orta_ustu_15m = close_15m.iloc[-1] >= sma20_15m.iloc[-1]
 
-            mikro_cekirge_tetik = (bb_squeeze_15m or bb_orta_ustu_15m or daralan_bulut_15m) and hma9_esnek_sarti and mfi_60_sarti_15m and stoch_esnek_dip
+            mikro_cekirge_tetik = (bb_squeeze_15m or bb_orta_ustu_15m or daralan_bulut_15m) && hma9_esnek_sarti and mfi_60_sarti_15m and stoch_esnek_dip
 
             if makro_cekirge_onay and mikro_cekirge_tetik:
               if kayit_guncelle("cekirge_15m"):
@@ -629,6 +629,13 @@ def run_scanner():
                 toplam_puan += 45.0
 
         if tetiklenen_str:
+          # Eğer 1S Çifte Alarm (1 Saat Yakala + DELİRDİ 1 Saat) varsa, Çekirge ve Tehlikeli Hibrit'i listeden çıkar
+          if "1 Saat Yakala" in tetiklenen_str and "DELİRDİ 1 Saat" in tetiklenen_str:
+              tetiklenen_str = [s for s in tetiklenen_str if s not in ["ÇEKİRGE", "TEHLİKELİ HİBRİT"]]
+
+          if not tetiklenen_str:
+              continue
+
           if toplam_puan == 0:
             toplam_puan = 25.0
 
@@ -640,20 +647,20 @@ def run_scanner():
           except Exception:
               pass
 
-          # Hiyerarşi Öncelik Skoru (Tekliler önce gönderilir, Dikkat en son gönderilerek en üstte kalır)
+          # Hiyerarşi Öncelik Skoru (Tekliler önce gönderilir, Dikkat çifte alarm en son gönderilerek telefonda EN ÜSTTE kalır)
           strats_upper_chk = [s.upper() for s in tetiklenen_str]
           has_both_1h_chk = ("1 SAAT YAKALA" in strats_upper_chk) and ("DELİRDİ 1 SAAT" in strats_upper_chk)
           has_cekirge_hibrit_chk = ("ÇEKİRGE" in strats_upper_chk) and ("TEHLİKELİ HİBRİT" in strats_upper_chk)
           strat_count_chk = len(tetiklenen_str)
 
           if has_both_1h_chk:
-              ozel_oncelik = 4  # En üstte görünecek (En son gönderilecek)
+              ozel_oncelik = 4  # 1. En Üstte (En Son Gönderilecek)
           elif has_cekirge_hibrit_chk:
-              ozel_oncelik = 3  # Altın Kesişim
+              ozel_oncelik = 3  # 2. Altın Kesişim
           elif strat_count_chk >= 2:
-              ozel_oncelik = 2  # Çift Füze / Çoklu
+              ozel_oncelik = 2  # 3. Çift Füze / Çoklu
           else:
-              ozel_oncelik = 1  # Tekliler (En önce gönderilecek, altta kalacak)
+              ozel_oncelik = 1  # 4. Tekliler (En Önce Gönderilecek, Altta Kalacak)
 
           toplanan_sinyaller.append({
               "temiz_isim": temiz_isim,
@@ -677,8 +684,8 @@ def run_scanner():
         continue
 
   if toplanan_sinyaller:
-    # reverse=False yapıldı: Tekliler ilk gönderilir, Dikkat çifte alarm en son gönderilerek telefonda EN ÜSTTE kalır.
-    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=False)
+    # reverse=True yapıldı: Tekliler ilk gönderilir, 1S Çifte Alarm en son gönderilerek telefonda EN ÜSTTE kalır.
+    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=True)
 
     grup_boyutu = 5
     for i in range(0, len(toplanan_sinyaller), grup_boyutu):
@@ -707,11 +714,11 @@ def run_scanner():
         for strat in item['stratejiler']:
           strat_upper = strat.upper()
           if "KARTAL ÖZEL" in strat_upper:
-            mesaj_satirlari.append(f"• 🦅🎯 {strat}")  # Parantez açıklaması kaldırıldı
+            mesaj_satirlari.append(f"• 🦅🎯 {strat}")
           elif "KARTAL 1 S" in strat_upper:
-            mesaj_satirlari.append(f"• 🦅📊 {strat}")  # Parantez açıklaması kaldırıldı
+            mesaj_satirlari.append(f"• 🦅📊 {strat}")
           elif "KARTAL 15DK" in strat_upper:
-            mesaj_satirlari.append(f"• 🦅⚡ {strat}")  # Parantez açıklaması kaldırıldı
+            mesaj_satirlari.append(f"• 🦅⚡ {strat}")
           elif "ÇEKİRGE" in strat_upper:
             mesaj_satirlari.append(f"• 🌿🚀🐕 {strat} (15m Hibrit Kırılım | MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
           elif "TEHLİKELİ HİBRİT" in strat_upper:
