@@ -661,7 +661,7 @@ def run_scanner():
         continue
 
   if toplanan_sinyaller:
-    toplanan_sinyaller.sort(key=lambda x: (len(x['stratejiler']), x['puan']), reverse=False)
+    toplanan_sinyaller.sort(key=lambda x: (len(x['stratejiler']), x['puan']), reverse=True)
 
     grup_boyutu = 5
     for i in range(0, len(toplanan_sinyaller), grup_boyutu):
@@ -671,10 +671,13 @@ def run_scanner():
       for item in alt_grup:
         strats_upper = [s.upper() for s in item['stratejiler']]
         has_both_1h = ("1 SAAT YAKALA" in strats_upper) and ("DELİRDİ 1 SAAT" in strats_upper)
+        has_cekirge_hibrit = ("ÇEKİRGE" in strats_upper) and ("TEHLİKELİ HİBRİT" in strats_upper)
         strat_count = len(item['stratejiler'])
 
         if has_both_1h:
           prefix = "👑🚨 DİKKAT: 1S ÇİFTE ALARM 🚨👑"
+        elif has_cekirge_hibrit:
+          prefix = "💎🔥 ALTIN KESİŞİM: ÇEKİRGE + HİBRİT 🔥💎"
         elif strat_count >= 3:
           prefix = "🚀🚀🚀 Hisse:"
         elif strat_count == 2:
