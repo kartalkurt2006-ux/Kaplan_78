@@ -629,10 +629,6 @@ def run_scanner():
                 toplam_puan += 45.0
 
         if tetiklenen_str:
-          # Eğer 1S Çifte Alarm varsa Çekirge ve Tehlikeli Hibrit'i listeden tamamen çıkar
-          if "1 Saat Yakala" in tetiklenen_str and "DELİRDİ 1 Saat" in tetiklenen_str:
-              tetiklenen_str = [s for s in tetiklenen_str if s not in ["ÇEKİRGE", "TEHLİKELİ HİBRİT"]]
-
           if not tetiklenen_str:
               continue
 
@@ -652,16 +648,14 @@ def run_scanner():
           has_cekirge_hibrit_chk = ("ÇEKİRGE" in strats_upper_chk) and ("TEHLİKELİ HİBRİT" in strats_upper_chk)
           strat_count_chk = len(tetiklenen_str)
 
-          # İSTEĞİN ÜZERİNE 3. VE 4. MADDE YER DEĞİŞTİRDİ: 
-          # Şimdi "Dikkat: 1S Çifte Alarm" (3) en üstte (puan 4), "Altın Kesişim" (4) onun altında (puan 3) kalacak şekilde ayarlandı.
           if has_both_1h_chk:
-              ozel_oncelik = 4  # En son gönderilecek -> Telefonda EN ÜSTTE kalacak (1S Çifte Alarm)
+              ozel_oncelik = 4  
           elif has_cekirge_hibrit_chk:
-              ozel_oncelik = 3  # İkinci son gönderilecek -> Çifte Alarm'ın hemen altında kalacak (Altın Kesişim)
+              ozel_oncelik = 3  
           elif strat_count_chk >= 2:
-              ozel_oncelik = 2  # Üçüncü -> Çoklu Stratejiler
+              ozel_oncelik = 2  
           else:
-              ozel_oncelik = 1  # İlk gönderilecek -> Telefonda EN ALTTA kalacak (Tekliler)
+              ozel_oncelik = 1  
 
           toplanan_sinyaller.append({
               "temiz_isim": temiz_isim,
@@ -685,7 +679,6 @@ def run_scanner():
         continue
 
   if toplanan_sinyaller:
-    # reverse=False yapıldı: Tekliler ilk gönderilir (en altta kalır), Çifte Alarm en son gönderilir (en üstte kalır).
     toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=False)
 
     grup_boyutu = 5
