@@ -640,20 +640,20 @@ def run_scanner():
           except Exception:
               pass
 
-          # Tam İstediğin Sıralama Hiyerarşisi (Dikkat En Üstte / En Son Gönderilecek Şekilde)
+          # Hiyerarşi Öncelik Skoru (Tekliler önce gönderilir, Dikkat en son gönderilerek en üstte kalır)
           strats_upper_chk = [s.upper() for s in tetiklenen_str]
           has_both_1h_chk = ("1 SAAT YAKALA" in strats_upper_chk) and ("DELİRDİ 1 SAAT" in strats_upper_chk)
           has_cekirge_hibrit_chk = ("ÇEKİRGE" in strats_upper_chk) and ("TEHLİKELİ HİBRİT" in strats_upper_chk)
           strat_count_chk = len(tetiklenen_str)
 
           if has_both_1h_chk:
-              ozel_oncelik = 4  # 1. En Üstte (En Son Gönderilecek)
+              ozel_oncelik = 4  # En üstte görünecek (En son gönderilecek)
           elif has_cekirge_hibrit_chk:
-              ozel_oncelik = 3  # 2. Altın Kesişim
+              ozel_oncelik = 3  # Altın Kesişim
           elif strat_count_chk >= 2:
-              ozel_oncelik = 2  # 3. Çift Füze / Çoklu
+              ozel_oncelik = 2  # Çift Füze / Çoklu
           else:
-              ozel_oncelik = 1  # 4. Tekliler (En Önce Gönderilecek, Altta Kalacak)
+              ozel_oncelik = 1  # Tekliler (En önce gönderilecek, altta kalacak)
 
           toplanan_sinyaller.append({
               "temiz_isim": temiz_isim,
@@ -677,8 +677,8 @@ def run_scanner():
         continue
 
   if toplanan_sinyaller:
-    # reverse=True yapıldı: Tekliler ilk gönderilir (altta kalır), 1S Çifte Alarm en son gönderilir (en üstte kalır)
-    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=True)
+    # reverse=False yapıldı: Tekliler ilk gönderilir, Dikkat çifte alarm en son gönderilerek telefonda EN ÜSTTE kalır.
+    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=False)
 
     grup_boyutu = 5
     for i in range(0, len(toplanan_sinyaller), grup_boyutu):
@@ -707,11 +707,11 @@ def run_scanner():
         for strat in item['stratejiler']:
           strat_upper = strat.upper()
           if "KARTAL ÖZEL" in strat_upper:
-            mesaj_satirlari.append(f"• 🦅🎯 {strat} (Master Hibrit: 15m Tetik + 1s Verimlilik Onayı)")
+            mesaj_satirlari.append(f"• 🦅🎯 {strat}")  # Parantez açıklaması kaldırıldı
           elif "KARTAL 1 S" in strat_upper:
-            mesaj_satirlari.append(f"• 🦅📊 {strat} (Saatlik Trend & 0.35 Verimlilik Süzgeci)")
+            mesaj_satirlari.append(f"• 🦅📊 {strat}")  # Parantez açıklaması kaldırıldı
           elif "KARTAL 15DK" in strat_upper:
-            mesaj_satirlari.append(f"• 🦅⚡ {strat} (15m Agresif Dip Avcısı & 0.35 Verimlilik)")
+            mesaj_satirlari.append(f"• 🦅⚡ {strat}")  # Parantez açıklaması kaldırıldı
           elif "ÇEKİRGE" in strat_upper:
             mesaj_satirlari.append(f"• 🌿🚀🐕 {strat} (15m Hibrit Kırılım | MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
           elif "TEHLİKELİ HİBRİT" in strat_upper:
