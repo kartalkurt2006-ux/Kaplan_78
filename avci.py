@@ -594,7 +594,7 @@ def run_scanner():
             bb_squeeze_15m = band_width_15m.iloc[-1] < band_width_15m.rolling(20).mean().iloc[-1]
             bb_orta_ustu_15m = close_15m.iloc[-1] >= sma20_15m.iloc[-1]
 
-            mikro_cekirge_tetik = (bb_squeeze_15m or bb_orta_ustu_15m or daralan_bulut_15m) && hma9_esnek_sarti and mfi_60_sarti_15m and stoch_esnek_dip
+            mikro_cekirge_tetik = (bb_squeeze_15m or bb_orta_ustu_15m or daralan_bulut_15m) and hma9_esnek_sarti and mfi_60_sarti_15m and stoch_esnek_dip
 
             if makro_cekirge_onay and mikro_cekirge_tetik:
               if kayit_guncelle("cekirge_15m"):
@@ -629,7 +629,7 @@ def run_scanner():
                 toplam_puan += 45.0
 
         if tetiklenen_str:
-          # Eğer 1S Çifte Alarm (1 Saat Yakala + DELİRDİ 1 Saat) varsa, Çekirge ve Tehlikeli Hibrit'i listeden çıkar
+          # Eğer 1S Çifte Alarm varsa Çekirge ve Tehlikeli Hibrit'i listeden tamamen çıkar
           if "1 Saat Yakala" in tetiklenen_str and "DELİRDİ 1 Saat" in tetiklenen_str:
               tetiklenen_str = [s for s in tetiklenen_str if s not in ["ÇEKİRGE", "TEHLİKELİ HİBRİT"]]
 
@@ -647,20 +647,19 @@ def run_scanner():
           except Exception:
               pass
 
-          # Hiyerarşi Öncelik Skoru (Tekliler önce gönderilir, Dikkat çifte alarm en son gönderilerek telefonda EN ÜSTTE kalır)
           strats_upper_chk = [s.upper() for s in tetiklenen_str]
           has_both_1h_chk = ("1 SAAT YAKALA" in strats_upper_chk) and ("DELİRDİ 1 SAAT" in strats_upper_chk)
           has_cekirge_hibrit_chk = ("ÇEKİRGE" in strats_upper_chk) and ("TEHLİKELİ HİBRİT" in strats_upper_chk)
           strat_count_chk = len(tetiklenen_str)
 
           if has_both_1h_chk:
-              ozel_oncelik = 4  # 1. En Üstte (En Son Gönderilecek)
+              ozel_oncelik = 4  
           elif has_cekirge_hibrit_chk:
-              ozel_oncelik = 3  # 2. Altın Kesişim
+              ozel_oncelik = 3  
           elif strat_count_chk >= 2:
-              ozel_oncelik = 2  # 3. Çift Füze / Çoklu
+              ozel_oncelik = 2  
           else:
-              ozel_oncelik = 1  # 4. Tekliler (En Önce Gönderilecek, Altta Kalacak)
+              ozel_oncelik = 1  
 
           toplanan_sinyaller.append({
               "temiz_isim": temiz_isim,
@@ -684,7 +683,6 @@ def run_scanner():
         continue
 
   if toplanan_sinyaller:
-    # reverse=True yapıldı: Tekliler ilk gönderilir, 1S Çifte Alarm en son gönderilerek telefonda EN ÜSTTE kalır.
     toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=True)
 
     grup_boyutu = 5
