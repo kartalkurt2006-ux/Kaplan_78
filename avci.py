@@ -648,14 +648,15 @@ def run_scanner():
           has_cekirge_hibrit_chk = ("ÇEKİRGE" in strats_upper_chk) and ("TEHLİKELİ HİBRİT" in strats_upper_chk)
           strat_count_chk = len(tetiklenen_str)
 
-          if has_both_1h_chk:
-              ozel_oncelik = 4  
-          elif has_cekirge_hibrit_chk:
-              ozel_oncelik = 3  
+          # İSTEĞİN ÜZERİNE YERLERİ DEĞİŞTİRİLDİ (Altın Kesişim 4, Çifte Alarm 3 yapıldı -> Altın Kesişim en üstte kalacak)
+          if has_cekirge_hibrit_chk:
+              ozel_oncelik = 4  # En son gönderilecek -> Telefonda EN ÜSTTE kalacak (Altın Kesişim)
+          elif has_both_1h_chk:
+              ozel_oncelik = 3  # İkinci son gönderilecek -> Altın Kesişim'in altında kalacak (Çifte Alarm)
           elif strat_count_chk >= 2:
-              ozel_oncelik = 2  
+              ozel_oncelik = 2  # Çoklu Stratejiler
           else:
-              ozel_oncelik = 1  
+              ozel_oncelik = 1  # Tekliler (En altta)
 
           toplanan_sinyaller.append({
               "temiz_isim": temiz_isim,
@@ -681,7 +682,7 @@ def run_scanner():
   if toplanan_sinyaller:
     toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=False)
 
-    grup_boyutu = 5
+    grup_boyutu = 3  # İSTEĞİN ÜZERİNE 5'TEN 3'E DÜŞÜRÜLDÜ (Karakter kesilme/patlama hatası önlendi)
     for i in range(0, len(toplanan_sinyaller), grup_boyutu):
       alt_grup = toplanan_sinyaller[i:i + grup_boyutu]
       mesaj_satirlari = ["----------------------------------------"]
@@ -692,10 +693,10 @@ def run_scanner():
         has_cekirge_hibrit = ("ÇEKİRGE" in strats_upper) and ("TEHLİKELİ HİBRİT" in strats_upper)
         strat_count = len(item['stratejiler'])
 
-        if has_both_1h:
-          prefix = "👑🚨 DİKKAT: 1S ÇİFTE ALARM 🚨👑"
-        elif has_cekirge_hibrit:
+        if has_cekirge_hibrit:
           prefix = "💎🔥 ALTIN KESİŞİM: ÇEKİRGE + HİBRİT 🔥💎"
+        elif has_both_1h:
+          prefix = "👑🚨 DİKKAT: 1S ÇİFTE ALARM 🚨👑"
         elif strat_count >= 3:
           prefix = "🚀🚀🚀 Hisse:"
         elif strat_count == 2:
