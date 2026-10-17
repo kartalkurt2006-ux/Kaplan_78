@@ -683,8 +683,8 @@ def run_scanner():
         continue
 
   if toplanan_sinyaller:
-    # reverse=True yapıldı: Dikkat çifte alarm ilk gönderilir, Tekliler en son gönderilerek telefonda EN ÜSTTE kalır.
-    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=True)
+    # reverse=False yapıldı: Tekliler ilk gönderilir, Dikkat Çifte Alarm en son gönderilerek telefonda EN ÜSTTE kalır.
+    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=False)
 
     grup_boyutu = 5
     for i in range(0, len(toplanan_sinyaller), grup_boyutu):
@@ -713,11 +713,11 @@ def run_scanner():
         for strat in item['stratejiler']:
           strat_upper = strat.upper()
           if "KARTAL ÖZEL" in strat_upper:
-            mesaj_satirlari.append(f"• 🦅🎯 {strat}")
+            mesaj_satirlari.append(f"• 🦅🎯 {strat} (MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
           elif "KARTAL 1 S" in strat_upper:
-            mesaj_satirlari.append(f"• 🦅📊 {strat}")
+            mesaj_satirlari.append(f"• 🦅📊 {strat} (MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
           elif "KARTAL 15DK" in strat_upper:
-            mesaj_satirlari.append(f"• 🦅⚡ {strat}")
+            mesaj_satirlari.append(f"• 🦅⚡ {strat} (MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
           elif "ÇEKİRGE" in strat_upper:
             mesaj_satirlari.append(f"• 🌿🚀🐕 {strat} (15m Hibrit Kırılım | MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
           elif "TEHLİKELİ HİBRİT" in strat_upper:
