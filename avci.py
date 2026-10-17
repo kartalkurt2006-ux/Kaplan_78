@@ -652,15 +652,16 @@ def run_scanner():
           has_cekirge_hibrit_chk = ("ÇEKİRGE" in strats_upper_chk) and ("TEHLİKELİ HİBRİT" in strats_upper_chk)
           strat_count_chk = len(tetiklenen_str)
 
-          # İSTEĞİN ÜZERİNE DEĞİŞTİRİLDİ: Altın Kesişim (3) önceliği Dikkat Çifte Alarm'ın (4) ÜSTÜNE alındı
-          if has_cekirge_hibrit_chk:
-              ozel_oncelik = 4  # 1. En üstte görünecek (Altın Kesişim)
-          elif has_both_1h_chk:
-              ozel_oncelik = 3  # 2. Onun altında (Dikkat Çifte Alarm)
+          # İSTEĞİN ÜZERİNE 3. VE 4. MADDE YER DEĞİŞTİRDİ: 
+          # Şimdi "Dikkat: 1S Çifte Alarm" (3) en üstte (puan 4), "Altın Kesişim" (4) onun altında (puan 3) kalacak şekilde ayarlandı.
+          if has_both_1h_chk:
+              ozel_oncelik = 4  # En son gönderilecek -> Telefonda EN ÜSTTE kalacak (1S Çifte Alarm)
+          elif has_cekirge_hibrit_chk:
+              ozel_oncelik = 3  # İkinci son gönderilecek -> Çifte Alarm'ın hemen altında kalacak (Altın Kesişim)
           elif strat_count_chk >= 2:
-              ozel_oncelik = 2  # 3. Çoklu Stratejiler
+              ozel_oncelik = 2  # Üçüncü -> Çoklu Stratejiler
           else:
-              ozel_oncelik = 1  # 4. Tekliler (En altta)
+              ozel_oncelik = 1  # İlk gönderilecek -> Telefonda EN ALTTA kalacak (Tekliler)
 
           toplanan_sinyaller.append({
               "temiz_isim": temiz_isim,
@@ -684,8 +685,8 @@ def run_scanner():
         continue
 
   if toplanan_sinyaller:
-    # reverse=True yapıldı: Önceliği yüksek olanlar (Altın Kesişim ve Çifte Alarm) en son gönderilerek telefonda EN ÜSTTE kalır.
-    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=True)
+    # reverse=False yapıldı: Tekliler ilk gönderilir (en altta kalır), Çifte Alarm en son gönderilir (en üstte kalır).
+    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=False)
 
     grup_boyutu = 5
     for i in range(0, len(toplanan_sinyaller), grup_boyutu):
@@ -698,10 +699,10 @@ def run_scanner():
         has_cekirge_hibrit = ("ÇEKİRGE" in strats_upper) and ("TEHLİKELİ HİBRİT" in strats_upper)
         strat_count = len(item['stratejiler'])
 
-        if has_cekirge_hibrit:
-          prefix = "💎🔥 ALTIN KESİŞİM: ÇEKİRGE + HİBRİT 🔥💎"
-        elif has_both_1h:
+        if has_both_1h:
           prefix = "👑🚨 DİKKAT: 1S ÇİFTE ALARM 🚨👑"
+        elif has_cekirge_hibrit:
+          prefix = "💎🔥 ALTIN KESİŞİM: ÇEKİRGE + HİBRİT 🔥💎"
         elif strat_count >= 3:
           prefix = "🚀🚀🚀 Hisse:"
         elif strat_count == 2:
