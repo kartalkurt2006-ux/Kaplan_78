@@ -640,20 +640,20 @@ def run_scanner():
           except Exception:
               pass
 
-          # Tam İstediğin Sıralama Hiyerarşisi (En Üstte Dikkat -> Altın Kesişim -> Çift Füze -> Tekliler)
+          # Hiyerarşi Öncelik Skoru (reverse=False ile en yüksek skorlular en son gönderilir ve en üstte görünür)
           strats_upper_chk = [s.upper() for s in tetiklenen_str]
           has_both_1h_chk = ("1 SAAT YAKALA" in strats_upper_chk) and ("DELİRDİ 1 SAAT" in strats_upper_chk)
           has_cekirge_hibrit_chk = ("ÇEKİRGE" in strats_upper_chk) and ("TEHLİKELİ HİBRİT" in strats_upper_chk)
           strat_count_chk = len(tetiklenen_str)
 
           if has_both_1h_chk:
-              ozel_oncelik = 4  # 1. En Üstte (En Son Gönderilecek)
+              ozel_oncelik = 4  # En üstte görünecek (En son gönderilecek)
           elif has_cekirge_hibrit_chk:
-              ozel_oncelik = 3  # 2. Altın Kesişim
+              ozel_oncelik = 3  # Altın Kesişim
           elif strat_count_chk >= 2:
-              ozel_oncelik = 2  # 3. Çift Füze / Çoklu
+              ozel_oncelik = 2  # Çift Füze / Çoklu
           else:
-              ozel_oncelik = 1  # 4. Tekliler (En Önce Gönderilecek, Altta Kalacak)
+              ozel_oncelik = 1  # Tekliler (En önce gönderilecek, altta kalacak)
 
           toplanan_sinyaller.append({
               "temiz_isim": temiz_isim,
@@ -677,8 +677,8 @@ def run_scanner():
         continue
 
   if toplanan_sinyaller:
-    # reverse=True sayesinde ozel_oncelik=4 en son gönderilir ve telefonda en üstte görünür.
-    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=True)
+    # reverse=False yapıldı: Tekliler ilk gönderilir (altta kalır), Dikkat/Altın Kesişim son gönderilir (en üstte kalır)
+    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=False)
 
     grup_boyutu = 5
     for i in range(0, len(toplanan_sinyaller), grup_boyutu):
