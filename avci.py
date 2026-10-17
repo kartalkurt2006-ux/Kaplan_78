@@ -683,6 +683,7 @@ def run_scanner():
         continue
 
   if toplanan_sinyaller:
+    # reverse=True yapıldı: Dikkat çifte alarm ilk gönderilir, Tekliler en son gönderilerek telefonda EN ÜSTTE kalır.
     toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=True)
 
     grup_boyutu = 5
