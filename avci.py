@@ -664,9 +664,10 @@ def run_scanner():
           has_kartal15_chk = "KARTAL 15DK" in strats_upper_chk
           strat_count_chk = len(tetiklenen_str)
 
-          if has_cekirge_hibrit_chk:
+          # Öncelik Sıralaması: 1. Çifte Alarm, 2. Altın Kesişim, 3. Kartal 15dk, vb.
+          if has_both_1h_chk:
               ozel_oncelik = 4
-          elif has_both_1h_chk:
+          elif has_cekirge_hibrit_chk:
               ozel_oncelik = 3
           elif has_kartal15_chk:
               ozel_oncelik = 2
@@ -697,7 +698,8 @@ def run_scanner():
         continue
 
   if toplanan_sinyaller:
-    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=False)
+    # Öncelik sıralaması: ozel_oncelik (küçük olan önce gelir -> 4: Çifte Alarm en başta, 3: Altın Kesişim hemen arkasında)
+    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=True)
 
     grup_boyutu = 3
     for i in range(0, len(toplanan_sinyaller), grup_boyutu):
@@ -710,10 +712,10 @@ def run_scanner():
         has_cekirge_hibrit = ("ÇEKİRGE" in strats_upper) and ("TEHLİKELİ HİBRİT" in strats_upper)
         strat_count = len(item['stratejiler'])
 
-        if has_cekirge_hibrit:
-          prefix = "💎🔥 ALTIN KESİŞİM: ÇEKİRGE + HİBRİT 🔥💎"
-        elif has_both_1h:
+        if has_both_1h:
           prefix = "👑🚨 DİKKAT: 1S ÇİFTE ALARM 👑🚨"
+        elif has_cekirge_hibrit:
+          prefix = "💎🔥 ALTIN KESİŞİM: ÇEKİRGE + HİBRİT 🔥💎"
         elif strat_count >= 3:
           prefix = "🚀🚀🚀 Hisse:"
         elif strat_count == 2:
@@ -726,13 +728,13 @@ def run_scanner():
         for strat in item['stratejiler']:
           strat_upper = strat.upper()
           if "KARTAL 15DK" in strat_upper:
-            mesaj_satirlari.append(f"• 🦅⚡ {strat} (1S +DI>25 + 15m Dalga + RVOL>=0.6 | MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
+            mesaj_satirlari.append(f"• 🦅⚡ {strat} (MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
           elif "KARTAL ÖZEL" in strat_upper:
             mesaj_satirlari.append(f"• 🦅🎯 {strat} (MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
           elif "KARTAL 1 S" in strat_upper:
             mesaj_satirlari.append(f"• 🦅📊 {strat} (MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
           elif "ÇEKİRGE" in strat_upper:
-            mesaj_satirlari.append(f"• 🌿🚀🐕 {strat} (15m Saf Sıkışma | MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
+            mesaj_satirlari.append(f"• 🌿🚀🐕 {strat} (MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
           elif "TEHLİKELİ HİBRİT" in strat_upper:
             mesaj_satirlari.append(f"• 🟢🟢🟢 {strat} (15m MFI:{item['mfi_15m']:.1f} | 15m +DI:{item['plus_di_15m']:.1f})")
           elif "DELİRDİ" in strat_upper and "1 SAAT" in strat_upper:
