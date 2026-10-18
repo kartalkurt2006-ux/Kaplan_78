@@ -160,9 +160,9 @@ def check_wave_margins(df, lookback=3, threshold_multiplier=0.80):
 
 
 # =========================================================================
-# 🚀 NİHAİ TREND HACİM PATLAMASI (1S DMI>25 Zırhı + 15m Dalga Marjı + RVOL >= 0.6)
+# 🦅 KARTAL 15dk MOTORU (1S DMI>25 Zırhı + 15m Dalga Marjı + RVOL >= 0.6 Sentezi)
 # =========================================================================
-def scan_trend_hacim_patlamasi(df_15m, df_1h):
+def scan_kartal_15dk(df_15m, df_1h):
     try:
         if df_15m is None or df_1h is None or len(df_15m) < 35 or len(df_1h) < 35:
             return False
@@ -218,7 +218,7 @@ def scan_trend_hacim_patlamasi(df_15m, df_1h):
         rvol_curr = rvol.iloc[-1] if not pd.isna(rvol.iloc[-1]) and rvol.iloc[-1] > 0 else 1e-5
         
         wave_efficiency = margin_range / rvol_curr
-        rvol_check = rvol_curr >= 0.6  # Güncellenen RVOL eşiği
+        rvol_check = rvol_curr >= 0.6  # Erken hacim tetiği
         
         mfi_ser = calculate_mfi(high_15m, low_15m, close_15m, volume_15m, 14)
         mfi_check = (mfi_ser.iloc[-12:] > 70).any()
@@ -257,7 +257,7 @@ def scan_kartal_1s(df):
 
 def scan_kartal_ozel(df_15m, df_1s):
     try:
-        tetik_15m = scan_trend_hacim_patlamasi(df_15m, df_1s)
+        tetik_15m = scan_kartal_15dk(df_15m, df_1s)
         if not tetik_15m or df_1s.empty or len(df_1s) < 35:
             return False
             
@@ -613,12 +613,12 @@ def run_scanner():
             # =========================================================================
 
             # =========================================================================
-            # 🚀 TREND HACİM PATLAMASI (RVOL >= 0.6 Güncellenmiş Hali)
+            # 🦅 KARTAL 15DK KONTROLÜ (Güncel Sentez Motoru)
             # =========================================================================
             if not df_1h.empty:
-                if scan_trend_hacim_patlamasi(df_15m, df_1h):
-                    if kayit_guncelle("trend_hacim_patlamasi"):
-                        tetiklenen_str.append("TREND HACİM PATLAMASI")
+                if scan_kartal_15dk(df_15m, df_1h):
+                    if kayit_guncelle("kartal_15dk"):
+                        tetiklenen_str.append("KARTAL 15dk")
                         toplam_puan += 45.0
             # =========================================================================
 
@@ -661,14 +661,14 @@ def run_scanner():
           strats_upper_chk = [s.upper() for s in tetiklenen_str]
           has_both_1h_chk = ("1 SAAT YAKALA" in strats_upper_chk) and ("DELİRDİ 1 SAAT" in strats_upper_chk)
           has_cekirge_hibrit_chk = ("ÇEKİRGE" in strats_upper_chk) and ("TEHLİKELİ HİBRİT" in strats_upper_chk)
-          has_thp_chk = "TREND HACİM PATLAMASI" in strats_upper_chk
+          has_kartal15_chk = "KARTAL 15DK" in strats_upper_chk
           strat_count_chk = len(tetiklenen_str)
 
           if has_cekirge_hibrit_chk:
               ozel_oncelik = 4
           elif has_both_1h_chk:
               ozel_oncelik = 3
-          elif has_thp_chk:
+          elif has_kartal15_chk:
               ozel_oncelik = 2
           elif strat_count_chk >= 2:
               ozel_oncelik = 2
@@ -702,57 +702,51 @@ def run_scanner():
     grup_boyutu = 3
     for i in range(0, len(toplanan_sinyaller), grup_boyutu):
       alt_grup = toplanan_sinyaller[i:i + grup_boyutu]
-      
+      mesaj_satirlari = ["----------------------------------------"]
+
       for item in alt_grup:
         strats_upper = [s.upper() for s in item['stratejiler']]
-        
-        # Sadece Trend Hacim Patlaması varsa minimalist, tek-füzeli özel format
-        if len(strats_upper) == 1 and "TREND HACİM PATLAMASI" in strats_upper:
-          final_mesaj = f"🚀 TREND HACİM PATLAMASI\n🚀 {item['temiz_isim']} | Fiyat: ₺{item['fiyat']:.2f}"
-          send_ntfy(final_mesaj, "TREND HACİM PATLAMASI")
-          time.sleep(0.4)
-        else:
-          mesaj_satirlari = ["----------------------------------------"]
-          has_both_1h = ("1 SAAT YAKALA" in strats_upper) and ("DELİRDİ 1 SAAT" in strats_upper)
-          has_cekirge_hibrit = ("ÇEKİRGE" in strats_upper) and ("TEHLİKELİ HİBRİT" in strats_upper)
-          strat_count = len(item['stratejiler'])
+        has_both_1h = ("1 SAAT YAKALA" in strats_upper) and ("DELİRDİ 1 SAAT" in strats_upper)
+        has_cekirge_hibrit = ("ÇEKİRGE" in strats_upper) and ("TEHLİKELİ HİBRİT" in strats_upper)
+        strat_count = len(item['stratejiler'])
 
-          if has_cekirge_hibrit:
-            prefix = "💎🔥 ALTIN KESİŞİM: ÇEKİRGE + HİBRİT 🔥💎"
-          elif has_both_1h:
-            prefix = "👑🚨 DİKKAT: 1S ÇİFTE ALARM 🚨👑"
-          elif strat_count >= 3:
-            prefix = "🚀🚀🚀 Hisse:"
-          elif strat_count == 2:
-            prefix = "🚀🚀 Hisse:"
+        if has_cekirge_hibrit:
+          prefix = "💎🔥 ALTIN KESİŞİM: ÇEKİRGE + HİBRİT 🔥💎"
+        elif has_both_1h:
+          prefix = "👑🚨 DİKKAT: 1S ÇİFTE ALARM 👑🚨"
+        elif strat_count >= 3:
+          prefix = "🚀🚀🚀 Hisse:"
+        elif strat_count == 2:
+          prefix = "🚀🚀 Hisse:"
+        else:
+          prefix = "📌 Hisse:"
+        
+        mesaj_satirlari.append(f"{prefix} 🟦 {item['temiz_isim']} 🟦 | Fiyat: ₺{item['fiyat']:.2f}")
+        
+        for strat in item['stratejiler']:
+          strat_upper = strat.upper()
+          if "KARTAL 15DK" in strat_upper:
+            mesaj_satirlari.append(f"• 🦅⚡ {strat} (1S +DI>25 + 15m Dalga + RVOL>=0.6 | MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
+          elif "KARTAL ÖZEL" in strat_upper:
+            mesaj_satirlari.append(f"• 🦅🎯 {strat} (MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
+          elif "KARTAL 1 S" in strat_upper:
+            mesaj_satirlari.append(f"• 🦅📊 {strat} (MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
+          elif "ÇEKİRGE" in strat_upper:
+            mesaj_satirlari.append(f"• 🌿🚀🐕 {strat} (15m Saf Sıkışma | MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
+          elif "TEHLİKELİ HİBRİT" in strat_upper:
+            mesaj_satirlari.append(f"• 🟢🟢🟢 {strat} (15m MFI:{item['mfi_15m']:.1f} | 15m +DI:{item['plus_di_15m']:.1f})")
+          elif "DELİRDİ" in strat_upper and "1 SAAT" in strat_upper:
+            mesaj_satirlari.append(f"• 💥💥💥 {strat} (1s RVOL:{item['rvol_1h']:.2f} | 1s RSI:{item['rsi_1h']:.1f} | 1s Konum:%{item['konum_1h']:.1f})")
+          elif "1 SAAT YAKALA" in strat_upper:
+            mesaj_satirlari.append(f"• ⚫⚫⚫ {strat} (1s RSI:{item['rsi_1h']:.1f} | 1s Konum:%{item['konum_1h']:.1f})")
           else:
-            prefix = "📌 Hisse:"
-          
-          mesaj_satirlari.append(f"{prefix} 🟦 {item['temiz_isim']} 🟦 | Fiyat: ₺{item['fiyat']:.2f}")
-          
-          for strat in item['stratejiler']:
-            strat_upper = strat.upper()
-            if "TREND HACİM PATLAMASI" in strat_upper:
-              mesaj_satirlari.append(f"• 🚀 {strat} (1S HMA20 + 1S +DI>25 + RVOL>=0.6 | MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
-            elif "KARTAL ÖZEL" in strat_upper:
-              mesaj_satirlari.append(f"• 🦅🎯 {strat} (MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
-            elif "KARTAL 1 S" in strat_upper:
-              mesaj_satirlari.append(f"• 🦅📊 {strat} (MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
-            elif "ÇEKİRGE" in strat_upper:
-              mesaj_satirlari.append(f"• 🌿🚀🐕 {strat} (15m Saf Sıkışma | MFI:{item['mfi_15m']:.1f} | +DI:{item['plus_di_15m']:.1f})")
-            elif "TEHLİKELİ HİBRİT" in strat_upper:
-              mesaj_satirlari.append(f"• 🟢🟢🟢 {strat} (15m MFI:{item['mfi_15m']:.1f} | 15m +DI:{item['plus_di_15m']:.1f})")
-            elif "DELİRDİ" in strat_upper and "1 SAAT" in strat_upper:
-              mesaj_satirlari.append(f"• 💥💥💥 {strat} (1s RVOL:{item['rvol_1h']:.2f} | 1s RSI:{item['rsi_1h']:.1f} | 1s Konum:%{item['konum_1h']:.1f})")
-            elif "1 SAAT YAKALA" in strat_upper:
-              mesaj_satirlari.append(f"• ⚫⚫⚫ {strat} (1s RSI:{item['rsi_1h']:.1f} | 1s Konum:%{item['konum_1h']:.1f})")
-            else:
-              mesaj_satirlari.append(f"• 🟣 {strat}")
-              
-          mesaj_satirlari.append("----------------------------------------")
-          final_mesaj = "\n".join(mesaj_satirlari)
-          send_ntfy(final_mesaj, "BIST Sinyal Raporu")
-          time.sleep(0.4)
+            mesaj_satirlari.append(f"• 🟣 {strat}")
+            
+        mesaj_satirlari.append("----------------------------------------")
+
+      final_mesaj = "\n".join(mesaj_satirlari)
+      send_ntfy(final_mesaj, "BIST Sinyal Raporu")
+      time.sleep(0.4)
 
   print("\nTüm Hisseler tarandı ve süreç tamamlandı.")
 
