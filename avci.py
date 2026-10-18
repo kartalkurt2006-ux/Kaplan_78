@@ -698,8 +698,8 @@ def run_scanner():
         continue
 
   if toplanan_sinyaller:
-    # Öncelik sıralaması: ozel_oncelik (küçük olan önce gelir -> 4: Çifte Alarm en başta, 3: Altın Kesişim hemen arkasında)
-    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=True)
+    # Sıralamayı tersine çevirerek istendiği gibi akışı ters akışa uyarlıyoruz (reverse=False -> reverse=True ile tam tersi)
+    toplanan_sinyaller.sort(key=lambda x: (x['ozel_oncelik'], len(x['stratejiler']), x['puan']), reverse=False)
 
     grup_boyutu = 3
     for i in range(0, len(toplanan_sinyaller), grup_boyutu):
