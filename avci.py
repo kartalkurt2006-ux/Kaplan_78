@@ -255,18 +255,42 @@ def scan_kartal_ozel(df_15m, df_1s):
 
 
 # =========================================================================
-# 🚀 GÜNCELLENEN MODÜL: TREND HACİM PATLAMASI (15m Check Wave Margins + 1S HMA20 + 15m RVOL >= 1.2)
+# 🚀 GÜNCELLENEN MODÜL: TREND HACİM PATLAMASI 
+# (1S HMA20 + 1S +DI > 20 & +DI > -DI veya Kesişim + 15m Check Wave Margins + 15m RVOL >= 1.2)
 # =========================================================================
 def scan_trend_hacim_patlamasi(df_15m, df_1h):
     try:
         if df_15m is None or df_1h is None or len(df_15m) < 35 or len(df_1h) < 35:
             return False
 
-        # 1. MAKRO FİLTRE (1 Saatlik Periyot: Fiyat > HMA 20)
+        # 1. MAKRO FİLTRE (1 Saatlik Periyot: Fiyat > HMA20 + DMI Şartları)
         close_1h = df_1h['Close']
-        hma20_1h = calculate_hma(close_1h, 20)
+        high_1h = df_1h['High']
+        low_1h = df_1h['Low']
         
+        hma20_1h = calculate_hma(close_1h, 20)
         if close_1h.iloc[-1] <= hma20_1h.iloc[-1]:
+            return False
+
+        # Saatlik DMI Hesaplaması (+DI ve -DI)
+        up_move_1h = high_1h.diff()
+        down_move_1h = -low_1h.diff()
+        plus_dm_1h = up_move_1h.where((up_move_1h > down_move_1h) & (up_move_1h > 0), 0)
+        minus_dm_1h = down_move_1h.where((down_move_1h > up_move_1h) & (down_move_1h > 0), 0)
+        tr_1h = pd.concat([high_1h - low_1h, (high_1h - close_1h.shift()).abs(), (low_1h - close_1h.shift()).abs()], axis=1).max(axis=1)
+        
+        plus_di_ser_1h = 100 * (plus_dm_1h.rolling(14).sum() / (tr_1h.rolling(14).sum() + 1e-10))
+        minus_di_ser_1h = 100 * (minus_dm_1h.rolling(14).sum() / (tr_1h.rolling(14).sum() + 1e-10))
+        
+        plus_di_1h = plus_di_ser_1h.iloc[-1]
+        minus_di_1h = minus_di_ser_1h.iloc[-1]
+        
+        # İstediğin DMI Kuralları: +DI > 20 ve (+DI, -DI'yi yukarı kessin VEYA -DI'nın üstünde olsun)
+        di_plus_value_check = plus_di_1h > 20.0
+        di_crossover = (plus_di_ser_1h.iloc[-2] <= minus_di_ser_1h.iloc[-2]) and (plus_di_ser_1h.iloc[-1] > minus_di_ser_1h.iloc[-1])
+        di_above = plus_di_1h > minus_di_1h
+        
+        if not (di_plus_value_check and (di_crossover or di_above)):
             return False
 
         # 2. ANA OMURGA: 15m Periyotta Levent Erol Tam Dalga Marjı Kırılımı
@@ -637,7 +661,7 @@ def run_scanner():
             # =========================================================================
 
             # =========================================================================
-            # 🚀 TREND HACİM PATLAMASI KONTROLÜ (15m Check Wave Margins Entegreli)
+            # 🚀 TREND HACİM PATLAMASI KONTROLÜ (1S HMA20 + 1S DMI + 15m Wave Margins + RVOL)
             # =========================================================================
             if not df_1h.empty:
                 if scan_trend_hacim_patlamasi(df_15m, df_1h):
@@ -735,7 +759,6 @@ def run_scanner():
       for item in alt_grup:
         strats_upper = [s.upper() for s in item['stratejiler']]
         
-        # Sadece Trend Hacim Patlaması varsa minimalist, tek-füzeli özel format
         if len(strats_upper) == 1 and "TREND HACİM PATLAMASI" in strats_upper:
           final_mesaj = f"🚀 TREND HACİM PATLAMASI\n🚀 {item['temiz_isim']} | Fiyat: ₺{item['fiyat']:.2f}"
           send_ntfy(final_mesaj, "TREND HACİM PATLAMASI")
