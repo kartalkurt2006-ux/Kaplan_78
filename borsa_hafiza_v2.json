@@ -865,7 +865,7 @@
                 "zaman": 1792164051.9060166,
                 "ilk_fiyat": 62.150001525878906,
                 "son_fiyat": 66.75,
-                "tekrar_sayisi": 42
+                "tekrar_sayisi": 43
             },
             "GLBMD.IS": {
                 "zaman": 1792164051.9060166,
@@ -2370,8 +2370,8 @@
             "GARAN.IS": {
                 "zaman": 1792050129.7645903,
                 "ilk_fiyat": 132.89999389648438,
-                "son_fiyat": 132.1999969482422,
-                "tekrar_sayisi": 18
+                "son_fiyat": 133.0,
+                "tekrar_sayisi": 19
             },
             "ISCTR.IS": {
                 "zaman": 1792050129.7645903,
@@ -2550,8 +2550,8 @@
             "TAVHL.IS": {
                 "zaman": 1792162042.4097762,
                 "ilk_fiyat": 274.0,
-                "son_fiyat": 275.25,
-                "tekrar_sayisi": 40
+                "son_fiyat": 274.5,
+                "tekrar_sayisi": 41
             },
             "BMSTL.IS": {
                 "zaman": 1792163904.0753353,
@@ -2664,8 +2664,8 @@
             "MTRYO.IS": {
                 "zaman": 1792417807.062273,
                 "ilk_fiyat": 7.670000076293945,
-                "son_fiyat": 7.670000076293945,
-                "tekrar_sayisi": 1
+                "son_fiyat": 7.440000057220459,
+                "tekrar_sayisi": 2
             }
         },
         "cekirge_15m": {
@@ -2846,8 +2846,8 @@
             "DMRGD.IS": {
                 "zaman": 1792189127.4336956,
                 "ilk_fiyat": 6.739999771118164,
-                "son_fiyat": 6.739999771118164,
-                "tekrar_sayisi": 1
+                "son_fiyat": 6.760000228881836,
+                "tekrar_sayisi": 2
             },
             "DZGYO.IS": {
                 "zaman": 1792189127.4336956,
