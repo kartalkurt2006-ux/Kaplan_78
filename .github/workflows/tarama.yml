@@ -1,4 +1,4 @@
-name: BIST Avci Otomatik Tarama
+Name: BIST Avci Otomatik Tarama
 
 on:
   schedule:
@@ -42,6 +42,6 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           touch borsa_hafiza_v2.json
           git add borsa_hafiza_v2.json
-          git commit -m "Otomatik hafıza güncellemesi [skip ci]" || echo "Değişiklik yok"
+          git commit -m "Otomatik hafıza güncellemesi" || echo "Değişiklik yok"
           git pull origin main --rebase || true
           git push origin main || echo "Push atlanıyor"
