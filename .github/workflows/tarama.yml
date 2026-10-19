@@ -1,4 +1,5 @@
-name: BIST Avci Otomatik Tarama
+# Cron tetikleyici yenilendi
+Name: BIST Avci Otomatik Tarama
 
 on:
   schedule:
