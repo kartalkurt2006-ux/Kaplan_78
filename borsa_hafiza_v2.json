@@ -996,6 +996,12 @@
                 "ilk_fiyat": 41.29999923706055,
                 "son_fiyat": 41.29999923706055,
                 "tekrar_sayisi": 1
+            },
+            "DURDO.IS": {
+                "zaman": 1792672688.4604607,
+                "ilk_fiyat": 6.179999828338623,
+                "son_fiyat": 6.179999828338623,
+                "tekrar_sayisi": 1
             }
         },
         "1h_dalga_gorsel": {
@@ -1952,8 +1958,8 @@
             "DURDO.IS": {
                 "zaman": 1792020350.3635268,
                 "ilk_fiyat": 7.010000228881836,
-                "son_fiyat": 5.690000057220459,
-                "tekrar_sayisi": 3
+                "son_fiyat": 6.179999828338623,
+                "tekrar_sayisi": 4
             },
             "FRIGO.IS": {
                 "zaman": 1792020350.3635268,
@@ -2926,8 +2932,8 @@
             "DURDO.IS": {
                 "zaman": 1792148345.00095,
                 "ilk_fiyat": 5.690000057220459,
-                "son_fiyat": 5.690000057220459,
-                "tekrar_sayisi": 1
+                "son_fiyat": 6.179999828338623,
+                "tekrar_sayisi": 2
             },
             "RALYH.IS": {
                 "zaman": 1792148345.00095,
@@ -3859,7 +3865,7 @@
                 "zaman": 1792653737.5203557,
                 "ilk_fiyat": 2.9100000858306885,
                 "son_fiyat": 2.940000057220459,
-                "tekrar_sayisi": 5
+                "tekrar_sayisi": 6
             },
             "CEOEM.IS": {
                 "zaman": 1792656663.629159,
@@ -4652,8 +4658,8 @@
             "CELHA.IS": {
                 "zaman": 1792567591.839104,
                 "ilk_fiyat": 24.780000686645508,
-                "son_fiyat": 24.3799991607666,
-                "tekrar_sayisi": 2
+                "son_fiyat": 24.399999618530273,
+                "tekrar_sayisi": 3
             },
             "OFSYM.IS": {
                 "zaman": 1792567591.839104,
@@ -4755,6 +4761,12 @@
                 "zaman": 1792670985.2151804,
                 "ilk_fiyat": 4.139999866485596,
                 "son_fiyat": 4.139999866485596,
+                "tekrar_sayisi": 1
+            },
+            "TATEN.IS": {
+                "zaman": 1792672688.4604607,
+                "ilk_fiyat": 4.010000228881836,
+                "son_fiyat": 4.010000228881836,
                 "tekrar_sayisi": 1
             }
         },
