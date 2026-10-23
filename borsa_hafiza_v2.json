@@ -3582,8 +3582,8 @@
             "MIATK.IS": {
                 "zaman": 1792069061.1244044,
                 "ilk_fiyat": 27.5,
-                "son_fiyat": 26.799999237060547,
-                "tekrar_sayisi": 9
+                "son_fiyat": 25.540000915527344,
+                "tekrar_sayisi": 10
             },
             "IZINV.IS": {
                 "zaman": 1792073660.2836962,
@@ -3882,8 +3882,8 @@
             "RYGYO.IS": {
                 "zaman": 1792509730.5518768,
                 "ilk_fiyat": 49.380001068115234,
-                "son_fiyat": 50.29999923706055,
-                "tekrar_sayisi": 11
+                "son_fiyat": 49.099998474121094,
+                "tekrar_sayisi": 12
             },
             "TATGD.IS": {
                 "zaman": 1792509730.5518768,
@@ -4935,6 +4935,12 @@
                 "zaman": 1792756488.8671706,
                 "ilk_fiyat": 2.859999895095825,
                 "son_fiyat": 2.859999895095825,
+                "tekrar_sayisi": 1
+            },
+            "ISKPL.IS": {
+                "zaman": 1792760693.983467,
+                "ilk_fiyat": 2.609999895095825,
+                "son_fiyat": 2.609999895095825,
                 "tekrar_sayisi": 1
             }
         },
