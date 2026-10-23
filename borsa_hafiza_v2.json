@@ -958,8 +958,8 @@
             "VERUS.IS": {
                 "zaman": 1792567591.839104,
                 "ilk_fiyat": 486.0,
-                "son_fiyat": 486.0,
-                "tekrar_sayisi": 1
+                "son_fiyat": 482.75,
+                "tekrar_sayisi": 2
             },
             "JANTS.IS": {
                 "zaman": 1792579335.8306434,
@@ -1019,6 +1019,12 @@
                 "zaman": 1792742585.8084326,
                 "ilk_fiyat": 4.860000133514404,
                 "son_fiyat": 4.860000133514404,
+                "tekrar_sayisi": 1
+            },
+            "PASEU.IS": {
+                "zaman": 1792744847.738819,
+                "ilk_fiyat": 33.119998931884766,
+                "son_fiyat": 33.119998931884766,
                 "tekrar_sayisi": 1
             }
         },
@@ -1567,19 +1573,19 @@
                 "zaman": 1792739948.9880965,
                 "ilk_fiyat": 70.55000305175781,
                 "son_fiyat": 72.9000015258789,
-                "tekrar_sayisi": 2
+                "tekrar_sayisi": 3
             },
             "VERUS.IS": {
                 "zaman": 1792739948.9880965,
                 "ilk_fiyat": 486.75,
-                "son_fiyat": 484.5,
-                "tekrar_sayisi": 2
+                "son_fiyat": 482.75,
+                "tekrar_sayisi": 3
             },
             "ERSU.IS": {
                 "zaman": 1792742585.8084326,
                 "ilk_fiyat": 16.899999618530273,
-                "son_fiyat": 16.899999618530273,
-                "tekrar_sayisi": 1
+                "son_fiyat": 16.5,
+                "tekrar_sayisi": 2
             }
         },
         "deli_gitan_1h": {
@@ -1820,8 +1826,8 @@
             "RYGYO.IS": {
                 "zaman": 1792509730.5518768,
                 "ilk_fiyat": 49.380001068115234,
-                "son_fiyat": 49.380001068115234,
-                "tekrar_sayisi": 1
+                "son_fiyat": 49.31999969482422,
+                "tekrar_sayisi": 2
             },
             "EYGYO.IS": {
                 "zaman": 1792567591.839104,
@@ -1869,6 +1875,12 @@
                 "zaman": 1792739948.9880965,
                 "ilk_fiyat": 70.55000305175781,
                 "son_fiyat": 70.55000305175781,
+                "tekrar_sayisi": 1
+            },
+            "VERUS.IS": {
+                "zaman": 1792744847.738819,
+                "ilk_fiyat": 482.75,
+                "son_fiyat": 482.75,
                 "tekrar_sayisi": 1
             }
         },
@@ -3546,8 +3558,8 @@
             "MIATK.IS": {
                 "zaman": 1792069061.1244044,
                 "ilk_fiyat": 27.5,
-                "son_fiyat": 27.639999389648438,
-                "tekrar_sayisi": 5
+                "son_fiyat": 25.860000610351562,
+                "tekrar_sayisi": 6
             },
             "IZINV.IS": {
                 "zaman": 1792073660.2836962,
@@ -3846,8 +3858,8 @@
             "RYGYO.IS": {
                 "zaman": 1792509730.5518768,
                 "ilk_fiyat": 49.380001068115234,
-                "son_fiyat": 49.29999923706055,
-                "tekrar_sayisi": 8
+                "son_fiyat": 49.31999969482422,
+                "tekrar_sayisi": 9
             },
             "TATGD.IS": {
                 "zaman": 1792509730.5518768,
@@ -3912,8 +3924,8 @@
             "RNPOL.IS": {
                 "zaman": 1792574130.974085,
                 "ilk_fiyat": 1.7799999713897705,
-                "son_fiyat": 1.8300000429153442,
-                "tekrar_sayisi": 8
+                "son_fiyat": 1.8700000047683716,
+                "tekrar_sayisi": 9
             },
             "ULUFA.IS": {
                 "zaman": 1792574130.974085,
@@ -3985,19 +3997,19 @@
                 "zaman": 1792739948.9880965,
                 "ilk_fiyat": 70.55000305175781,
                 "son_fiyat": 72.9000015258789,
-                "tekrar_sayisi": 2
+                "tekrar_sayisi": 3
             },
             "VERUS.IS": {
                 "zaman": 1792739948.9880965,
                 "ilk_fiyat": 486.75,
-                "son_fiyat": 484.5,
-                "tekrar_sayisi": 2
+                "son_fiyat": 482.75,
+                "tekrar_sayisi": 3
             },
             "ERSU.IS": {
                 "zaman": 1792742585.8084326,
                 "ilk_fiyat": 16.899999618530273,
-                "son_fiyat": 16.899999618530273,
-                "tekrar_sayisi": 1
+                "son_fiyat": 16.5,
+                "tekrar_sayisi": 2
             }
         },
         "cekirge_15m": {
@@ -4881,6 +4893,12 @@
                 "zaman": 1792739948.9880965,
                 "ilk_fiyat": 23.920000076293945,
                 "son_fiyat": 23.920000076293945,
+                "tekrar_sayisi": 1
+            },
+            "PASEU.IS": {
+                "zaman": 1792744847.738819,
+                "ilk_fiyat": 33.119998931884766,
+                "son_fiyat": 33.119998931884766,
                 "tekrar_sayisi": 1
             }
         },
