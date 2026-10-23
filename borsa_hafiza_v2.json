@@ -1176,8 +1176,8 @@
             "MIATK.IS": {
                 "zaman": 1792069061.1244044,
                 "ilk_fiyat": 27.5,
-                "son_fiyat": 27.5,
-                "tekrar_sayisi": 4
+                "son_fiyat": 26.200000762939453,
+                "tekrar_sayisi": 5
             },
             "PCILT.IS": {
                 "zaman": 1792069061.1244044,
@@ -1566,8 +1566,8 @@
             "PKENT.IS": {
                 "zaman": 1792700813.6812725,
                 "ilk_fiyat": 110.0,
-                "son_fiyat": 110.0,
-                "tekrar_sayisi": 1
+                "son_fiyat": 110.19999694824219,
+                "tekrar_sayisi": 2
             },
             "SELEC.IS": {
                 "zaman": 1792739948.9880965,
@@ -3558,8 +3558,8 @@
             "MIATK.IS": {
                 "zaman": 1792069061.1244044,
                 "ilk_fiyat": 27.5,
-                "son_fiyat": 25.860000610351562,
-                "tekrar_sayisi": 6
+                "son_fiyat": 26.200000762939453,
+                "tekrar_sayisi": 7
             },
             "IZINV.IS": {
                 "zaman": 1792073660.2836962,
@@ -3858,8 +3858,8 @@
             "RYGYO.IS": {
                 "zaman": 1792509730.5518768,
                 "ilk_fiyat": 49.380001068115234,
-                "son_fiyat": 49.31999969482422,
-                "tekrar_sayisi": 9
+                "son_fiyat": 49.220001220703125,
+                "tekrar_sayisi": 10
             },
             "TATGD.IS": {
                 "zaman": 1792509730.5518768,
@@ -3990,8 +3990,8 @@
             "PKENT.IS": {
                 "zaman": 1792700813.6812725,
                 "ilk_fiyat": 110.0,
-                "son_fiyat": 104.5999984741211,
-                "tekrar_sayisi": 2
+                "son_fiyat": 110.19999694824219,
+                "tekrar_sayisi": 3
             },
             "SELEC.IS": {
                 "zaman": 1792739948.9880965,
@@ -4008,8 +4008,14 @@
             "ERSU.IS": {
                 "zaman": 1792742585.8084326,
                 "ilk_fiyat": 16.899999618530273,
-                "son_fiyat": 16.5,
-                "tekrar_sayisi": 2
+                "son_fiyat": 16.90999984741211,
+                "tekrar_sayisi": 3
+            },
+            "VAKFN.IS": {
+                "zaman": 1792749092.0090396,
+                "ilk_fiyat": 0.8600000143051147,
+                "son_fiyat": 0.8600000143051147,
+                "tekrar_sayisi": 1
             }
         },
         "cekirge_15m": {
