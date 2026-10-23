@@ -430,8 +430,8 @@
             "SAFKR.IS": {
                 "zaman": 1792163904.0753353,
                 "ilk_fiyat": 12.130000114440918,
-                "son_fiyat": 12.079999923706055,
-                "tekrar_sayisi": 29
+                "son_fiyat": 11.779999732971191,
+                "tekrar_sayisi": 30
             },
             "SKTAS.IS": {
                 "zaman": 1792163904.0753353,
@@ -1025,6 +1025,12 @@
                 "zaman": 1792744847.738819,
                 "ilk_fiyat": 33.119998931884766,
                 "son_fiyat": 33.119998931884766,
+                "tekrar_sayisi": 1
+            },
+            "BEGYO.IS": {
+                "zaman": 1792756488.8671706,
+                "ilk_fiyat": 2.859999895095825,
+                "son_fiyat": 2.859999895095825,
                 "tekrar_sayisi": 1
             }
         },
@@ -2698,6 +2704,12 @@
                 "ilk_fiyat": 2.200000047683716,
                 "son_fiyat": 2.200000047683716,
                 "tekrar_sayisi": 1
+            },
+            "SAFKR.IS": {
+                "zaman": 1792756488.8671706,
+                "ilk_fiyat": 11.779999732971191,
+                "son_fiyat": 11.779999732971191,
+                "tekrar_sayisi": 1
             }
         },
         "kartal_ozel": {
@@ -3366,6 +3378,12 @@
                 "ilk_fiyat": 4.860000133514404,
                 "son_fiyat": 4.860000133514404,
                 "tekrar_sayisi": 1
+            },
+            "SAFKR.IS": {
+                "zaman": 1792756488.8671706,
+                "ilk_fiyat": 11.779999732971191,
+                "son_fiyat": 11.779999732971191,
+                "tekrar_sayisi": 1
             }
         },
         "kartal_1s": {
@@ -3564,8 +3582,8 @@
             "MIATK.IS": {
                 "zaman": 1792069061.1244044,
                 "ilk_fiyat": 27.5,
-                "son_fiyat": 26.299999237060547,
-                "tekrar_sayisi": 8
+                "son_fiyat": 26.799999237060547,
+                "tekrar_sayisi": 9
             },
             "IZINV.IS": {
                 "zaman": 1792073660.2836962,
@@ -3864,8 +3882,8 @@
             "RYGYO.IS": {
                 "zaman": 1792509730.5518768,
                 "ilk_fiyat": 49.380001068115234,
-                "son_fiyat": 49.220001220703125,
-                "tekrar_sayisi": 10
+                "son_fiyat": 50.29999923706055,
+                "tekrar_sayisi": 11
             },
             "TATGD.IS": {
                 "zaman": 1792509730.5518768,
@@ -4298,8 +4316,8 @@
             "SAFKR.IS": {
                 "zaman": 1792189127.4336956,
                 "ilk_fiyat": 12.079999923706055,
-                "son_fiyat": 12.079999923706055,
-                "tekrar_sayisi": 24
+                "son_fiyat": 11.779999732971191,
+                "tekrar_sayisi": 25
             },
             "TOASO.IS": {
                 "zaman": 1792189127.4336956,
@@ -4911,6 +4929,12 @@
                 "zaman": 1792744847.738819,
                 "ilk_fiyat": 33.119998931884766,
                 "son_fiyat": 33.119998931884766,
+                "tekrar_sayisi": 1
+            },
+            "BEGYO.IS": {
+                "zaman": 1792756488.8671706,
+                "ilk_fiyat": 2.859999895095825,
+                "son_fiyat": 2.859999895095825,
                 "tekrar_sayisi": 1
             }
         },
