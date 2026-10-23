@@ -1176,8 +1176,8 @@
             "MIATK.IS": {
                 "zaman": 1792069061.1244044,
                 "ilk_fiyat": 27.5,
-                "son_fiyat": 26.200000762939453,
-                "tekrar_sayisi": 5
+                "son_fiyat": 26.299999237060547,
+                "tekrar_sayisi": 6
             },
             "PCILT.IS": {
                 "zaman": 1792069061.1244044,
@@ -1881,6 +1881,12 @@
                 "zaman": 1792744847.738819,
                 "ilk_fiyat": 482.75,
                 "son_fiyat": 482.75,
+                "tekrar_sayisi": 1
+            },
+            "MIATK.IS": {
+                "zaman": 1792751761.3410919,
+                "ilk_fiyat": 26.299999237060547,
+                "son_fiyat": 26.299999237060547,
                 "tekrar_sayisi": 1
             }
         },
@@ -3558,8 +3564,8 @@
             "MIATK.IS": {
                 "zaman": 1792069061.1244044,
                 "ilk_fiyat": 27.5,
-                "son_fiyat": 26.200000762939453,
-                "tekrar_sayisi": 7
+                "son_fiyat": 26.299999237060547,
+                "tekrar_sayisi": 8
             },
             "IZINV.IS": {
                 "zaman": 1792073660.2836962,
@@ -3990,8 +3996,8 @@
             "PKENT.IS": {
                 "zaman": 1792700813.6812725,
                 "ilk_fiyat": 110.0,
-                "son_fiyat": 110.19999694824219,
-                "tekrar_sayisi": 3
+                "son_fiyat": 105.5,
+                "tekrar_sayisi": 4
             },
             "SELEC.IS": {
                 "zaman": 1792739948.9880965,
